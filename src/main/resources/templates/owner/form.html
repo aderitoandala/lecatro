@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout('Proprietário', 'owners',
+        ~{::conteudo})}">
+
+<body>
+	<th:block th:ref="conteudo">
+
+		<div class="d-flex align-items-center mb-4 gap-2">
+			<a th:href="@{/owners}" class="btn btn-sm btn-outline-secondary">
+				<i class="bi bi-arrow-left"></i>
+			</a>
+			<h5 class="mb-0" th:text="${owner != null} ? 'Editar Proprietário' : 'Novo Proprietário'"></h5>
+		</div>
+
+		<div class="card border-0 shadow-sm" style="max-width: 600px">
+			<div class="card-body p-4">
+
+				<!-- acção do formulário depende se é criação ou edição -->
+				<form th:action="${owner != null} ? @{/owners/{id}/edit(id=${publicId})} : @{/owners}" method="post"
+					th:object="${ownerRequest != null} ? ${ownerRequest} : ${owner}">
+
+					<div class="mb-3">
+						<label class="form-label">Nome</label>
+						<input type="text" class="form-control" th:field="*{firstName}"
+							th:classappend="${#fields.hasErrors('firstName')} ? 'is-invalid'" />
+						<div class="invalid-feedback" th:errors="*{firstName}"></div>
+					</div>
+
+					<div class="mb-3">
+						<label class="form-label">Apelido</label>
+						<input type="text" class="form-control" th:field="*{lastName}"
+							th:classappend="${#fields.hasErrors('lastName')} ? 'is-invalid'" />
+						<div class="invalid-feedback" th:errors="*{lastName}"></div>
+					</div>
+
+					<div class="mb-3">
+						<label class="form-label">NUIT</label>
+						<input type="text" class="form-control" th:field="*{nuit}"
+							th:classappend="${#fields.hasErrors('nuit')} ? 'is-invalid'" />
+						<div class="invalid-feedback" th:errors="*{nuit}"></div>
+					</div>
+
+					<div class="mb-3">
+						<label class="form-label">Email</label>
+						<input type="email" class="form-control" th:field="*{email}"
+							th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'" />
+						<div class="invalid-feedback" th:errors="*{email}"></div>
+					</div>
+
+					<div class="mb-4">
+						<label class="form-label">Data de Nascimento</label>
+						<input type="date" class="form-control" th:field="*{birthDate}"
+							th:classappend="${#fields.hasErrors('birthDate')} ? 'is-invalid'" />
+						<div class="invalid-feedback" th:errors="*{birthDate}"></div>
+					</div>
+
+					<button type="submit" class="btn btn-dark">
+						<span th:text="${owner != null} ? 'Actualizar' : 'Guardar'"></span>
+					</button>
+
+				</form>
+			</div>
+		</div>
+
+	</th:block>
+</body>
+
+</html>

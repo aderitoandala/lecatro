@@ -11,4 +11,6 @@ public interface OwnerRepository extends JpaRepository<Owner, Long> {
 	Optional<Owner> findByNuit(String nuit);
 
 	Optional<Owner> findByPublicId(UUID publicId);
+
+	boolean existsByNuit(String nuit);
 }

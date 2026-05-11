@@ -14,4 +14,7 @@ public interface LicensePlateRepository extends JpaRepository<LicensePlate, Long
 	Optional<LicensePlate> findByPublicId(UUID publicId);
 
 	boolean existsByRequestVehicleIdAndStatus(Long vehicleId, LicensePlateStatus status);
+
+	boolean existsByNumber(String number);
+
 }

@@ -1,0 +1,75 @@
+package com.dery.lecatro.controller;
+
+import java.util.UUID;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.dery.lecatro.dto.request.VehicleRequest;
+import com.dery.lecatro.service.VehicleService;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+
+@Controller
+@RequestMapping("/vehicles")
+@RequiredArgsConstructor
+public class VehicleController {
+
+	private final VehicleService vehicleService;
+
+	@GetMapping
+	public String list(Model model) {
+		model.addAttribute("vehicles", vehicleService.findAll());
+		return "vehicle/list";
+	}
+
+	@GetMapping("/new")
+	public String createForm(Model model) {
+		model.addAttribute("vehicleRequest", new VehicleRequest(null, null, null, null, null));
+		return "vehicle/form";
+	}
+
+	@PostMapping
+	public String create(@Valid @ModelAttribute VehicleRequest vehicleRequest, BindingResult result,
+			RedirectAttributes redirectAttributes) {
+		if (result.hasErrors())
+			return "vehicle/form";
+
+		vehicleService.create(vehicleRequest);
+		redirectAttributes.addFlashAttribute("mensagem", "Veículo criado com sucesso");
+		return "redirect:/vehicles";
+	}
+
+	@GetMapping("/{publicId}/edit")
+	public String editForm(@PathVariable UUID publicId, Model model) {
+		model.addAttribute("vehicle", vehicleService.findByPublicId(publicId));
+		model.addAttribute("publicId", publicId);
+		return "vehicle/form";
+	}
+
+	@PostMapping("/{publicId}/edit")
+	public String update(@PathVariable UUID publicId, @Valid @ModelAttribute VehicleRequest vehicleRequest,
+			BindingResult result, RedirectAttributes redirectAttributes) {
+		if (result.hasErrors())
+			return "vehicle/form";
+
+		vehicleService.update(publicId, vehicleRequest);
+		redirectAttributes.addFlashAttribute("mensagem", "Veículo actualizado com sucesso");
+		return "redirect:/vehicles";
+	}
+
+	@PostMapping("/{publicId}/delete")
+	public String delete(@PathVariable UUID publicId, RedirectAttributes redirectAttributes) {
+		vehicleService.delete(publicId);
+		redirectAttributes.addFlashAttribute("mensagem", "Veículo removido com sucesso");
+		return "redirect:/vehicles";
+	}
+}

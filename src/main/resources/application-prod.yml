@@ -13,6 +13,21 @@ spring:
     enabled: true
     locations: classpath:db/migration
 
+
+  mail: 
+    host: ${MAIL_HOST}          # ex: smtp.gmail.com
+    port: ${MAIL_PORT}          # ex: 587
+    username: ${MAIL_USERNAME}  # email remetente
+    password: ${MAIL_PASSWORD}  # senha ou app password
+    properties:
+      mail:
+        smtp:
+          auth: true            # autenticação obrigatória no SMTP
+          starttls:
+            enable: true    
+
 logging:
   level:
     '[com.dery.lecatro]': INFO  
+
+

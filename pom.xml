@@ -102,6 +102,12 @@
             <artifactId>mapstruct</artifactId>
             <version>${mapstruct.version}</version>
         </dependency>
+        
+        <!-- Envio de emails via SMTP -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-mail</artifactId>
+</dependency>
 
         <!-- Testes gerais Spring Boot -->
         <dependency>

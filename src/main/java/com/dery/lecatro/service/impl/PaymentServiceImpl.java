@@ -15,6 +15,7 @@ import com.dery.lecatro.entity.enums.RequestStatus;
 import com.dery.lecatro.mapper.PaymentMapper;
 import com.dery.lecatro.repository.PaymentRepository;
 import com.dery.lecatro.repository.RequestRepository;
+import com.dery.lecatro.service.EmailService;
 import com.dery.lecatro.service.HistoryService;
 import com.dery.lecatro.service.PaymentService;
 
@@ -28,6 +29,8 @@ public class PaymentServiceImpl implements PaymentService {
 	private final RequestRepository requestRepository;
 	private final PaymentMapper paymentMapper;
 	private final HistoryService historyService;
+	private final EmailService emailService;
+	
 
 	@Override
 	@Transactional
@@ -70,6 +73,10 @@ public class PaymentServiceImpl implements PaymentService {
 
 		// regista confirmação no histórico
 		historyService.record(request.getPublicId(), HistoryEvent.PAYMENT, "Pagamento confirmado");
+
+		// notifica o proprietário que o pagamento foi confirmado
+		emailService.sendRequestStatusNotification(request.getOwner().getEmail(), request.getOwner().getFirstName(),
+				request.getPublicId().toString(), RequestStatus.PAID);
 
 		return paymentMapper.toResponse(payment);
 	}

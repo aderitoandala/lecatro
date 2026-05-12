@@ -15,6 +15,7 @@ import com.dery.lecatro.entity.enums.RequestStatus;
 import com.dery.lecatro.mapper.LicensePlateMapper;
 import com.dery.lecatro.repository.LicensePlateRepository;
 import com.dery.lecatro.repository.RequestRepository;
+import com.dery.lecatro.service.EmailService;
 import com.dery.lecatro.service.HistoryService;
 import com.dery.lecatro.service.LicensePlateService;
 import com.dery.lecatro.util.LicensePlateGenerator;
@@ -30,6 +31,7 @@ public class LicensePlateServiceImpl implements LicensePlateService {
 	private final LicensePlateMapper licensePlateMapper;
 	private final LicensePlateGenerator licensePlateGenerator; 
 	private final HistoryService historyService;
+	private final EmailService emailService;
 
 	@Override
 	@Transactional
@@ -63,6 +65,14 @@ public class LicensePlateServiceImpl implements LicensePlateService {
 
 		// regista emissão no histórico
 		historyService.record(request.getPublicId(), HistoryEvent.REGISTRATION, "Matrícula emitida: " + number);
+		
+		// notifica o proprietário que a matrícula foi emitida
+		emailService.sendRequestStatusNotification(
+		    request.getOwner().getEmail(),
+		    request.getOwner().getFirstName(),
+		    request.getPublicId().toString(),
+		    RequestStatus.ISSUED
+		);
 
 		return licensePlateMapper.toResponse(saved);
 	}

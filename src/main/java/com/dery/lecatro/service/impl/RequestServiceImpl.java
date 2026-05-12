@@ -20,6 +20,7 @@ import com.dery.lecatro.repository.OwnerRepository;
 import com.dery.lecatro.repository.RequestRepository;
 import com.dery.lecatro.repository.UserRepository;
 import com.dery.lecatro.repository.VehicleRepository;
+import com.dery.lecatro.service.EmailService;
 import com.dery.lecatro.service.HistoryService;
 import com.dery.lecatro.service.RequestService;
 
@@ -35,6 +36,7 @@ public class RequestServiceImpl implements RequestService {
 	private final UserRepository userRepository;
 	private final RequestMapper requestMapper;
 	private final HistoryService historyService;
+	private final EmailService emailService;
 
 	@Override
 	@Transactional
@@ -58,6 +60,10 @@ public class RequestServiceImpl implements RequestService {
 
 		// regista o evento de criaçao no histórico
 		historyService.record(saved.getPublicId(), HistoryEvent.REGISTRATION, "Pedido criado");
+
+		// notifica o proprietário que o pedido foi recebido
+		emailService.sendRequestStatusNotification(saved.getOwner().getEmail(), saved.getOwner().getFirstName(),
+				saved.getPublicId().toString(), RequestStatus.PENDING);
 
 		return requestMapper.toResponse(saved);
 	}
@@ -105,6 +111,10 @@ public class RequestServiceImpl implements RequestService {
 
 		// regista o evento de cancelamento no histórico
 		historyService.record(saved.getPublicId(), HistoryEvent.CANCELLATION, "Pedido cancelado");
+
+		// notifica o proprietário do cancelamento
+		emailService.sendRequestStatusNotification(saved.getOwner().getEmail(), saved.getOwner().getFirstName(),
+				saved.getPublicId().toString(), RequestStatus.CANCELLED);
 
 		return requestMapper.toResponse(saved);
 	}

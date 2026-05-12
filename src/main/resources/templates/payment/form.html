@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	th:replace="~{fragments/layout :: layout('Registar Pagamento', 'requests', ~{::conteudo})}">
+
+<body>
+	<th:block th:ref="conteudo">
+
+		<div class="d-flex align-items-center mb-4 gap-2">
+			<a th:href="@{/requests/{id}(id=${request.publicId})}" class="btn btn-sm btn-outline-secondary">
+				<i class="bi bi-arrow-left"></i>
+			</a>
+			<h5 class="mb-0">Registar Pagamento</h5>
+		</div>
+
+		<div class="card border-0 shadow-sm" style="max-width: 600px">
+			<div class="card-body p-4">
+
+				<!-- contexto do pedido -->
+				<div class="mb-4 p-3 bg-light rounded">
+					<div class="text-muted small">Pedido</div>
+					<div th:text="${request.owner.firstName + ' ' + request.owner.lastName}"></div>
+					<div class="text-muted small" th:text="${request.vehicle.brand + ' ' + request.vehicle.model}">
+					</div>
+				</div>
+
+				<form th:action="@{/payments}" method="post" th:object="${paymentRequest}">
+
+					<!-- campo oculto com o publicId do pedido -->
+					<input type="hidden" th:field="*{requestPublicId}" />
+
+					<div class="mb-3">
+						<label class="form-label">Valor (MZN)</label>
+						<input type="number" step="0.01" class="form-control" th:field="*{amount}"
+							th:classappend="${#fields.hasErrors('amount')} ? 'is-invalid'" />
+						<div class="invalid-feedback" th:errors="*{amount}"></div>
+					</div>
+
+					<div class="mb-4">
+						<label class="form-label">Método de Pagamento</label>
+						<select class="form-select" th:field="*{method}"
+							th:classappend="${#fields.hasErrors('method')} ? 'is-invalid'">
+							<option value="">-- Seleccione --</option>
+							<option value="BANK_TRANSFER">Transferência Bancária</option>
+							<option value="MPESA">M-Pesa</option>
+							<option value="EMOLA">e-Mola</option>
+						</select>
+						<div class="invalid-feedback" th:errors="*{method}"></div>
+					</div>
+
+					<button type="submit" class="btn btn-dark">Registar</button>
+
+				</form>
+			</div>
+		</div>
+
+	</th:block>
+</body>
+
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	th:replace="~{fragments/layout :: layout('Veículo', 'vehicles', ~{::conteudo})}">
+
+<body>
+	<th:block th:ref="conteudo">
+
+		<div class="d-flex align-items-center mb-4 gap-2">
+			<a th:href="@{/vehicles}" class="btn btn-sm btn-outline-secondary">
+				<i class="bi bi-arrow-left"></i>
+			</a>
+			<h5 class="mb-0" th:text="${vehicle != null} ? 'Editar Veículo' : 'Novo Veículo'"></h5>
+		</div>
+
+		<div class="card border-0 shadow-sm" style="max-width: 600px">
+			<div class="card-body p-4">
+
+				<form th:action="${vehicle != null} ? @{/vehicles/{id}/edit(id=${publicId})} : @{/vehicles}"
+					method="post" th:object="${vehicleRequest != null} ? ${vehicleRequest} : ${vehicle}">
+
+					<div class="mb-3">
+						<label class="form-label">Marca</label>
+						<input type="text" class="form-control" th:field="*{brand}"
+							th:classappend="${#fields.hasErrors('brand')} ? 'is-invalid'" />
+						<div class="invalid-feedback" th:errors="*{brand}"></div>
+					</div>
+
+					<div class="mb-3">
+						<label class="form-label">Modelo</label>
+						<input type="text" class="form-control" th:field="*{model}"
+							th:classappend="${#fields.hasErrors('model')} ? 'is-invalid'" />
+						<div class="invalid-feedback" th:errors="*{model}"></div>
+					</div>
+
+					<div class="mb-3">
+						<label class="form-label">Cor</label>
+						<input type="text" class="form-control" th:field="*{color}"
+							th:classappend="${#fields.hasErrors('color')} ? 'is-invalid'" />
+						<div class="invalid-feedback" th:errors="*{color}"></div>
+					</div>
+
+					<div class="mb-3">
+						<label class="form-label">Número de Chassis</label>
+						<input type="text" class="form-control" th:field="*{chassisNumber}"
+							th:classappend="${#fields.hasErrors('chassisNumber')} ? 'is-invalid'" />
+						<div class="invalid-feedback" th:errors="*{chassisNumber}"></div>
+					</div>
+
+					<div class="mb-4">
+						<label class="form-label">Ano de Fabrico</label>
+						<input type="number" class="form-control" th:field="*{manufactureYear}"
+							th:classappend="${#fields.hasErrors('manufactureYear')} ? 'is-invalid'" />
+						<div class="invalid-feedback" th:errors="*{manufactureYear}"></div>
+					</div>
+
+					<button type="submit" class="btn btn-dark">
+						<span th:text="${vehicle != null} ? 'Actualizar' : 'Guardar'"></span>
+					</button>
+
+				</form>
+			</div>
+		</div>
+
+	</th:block>
+</body>
+
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	th:replace="~{fragments/layout :: layout('Novo Pedido', 'requests', ~{::conteudo})}">
+
+<body>
+	<th:block th:ref="conteudo">
+
+		<div class="d-flex align-items-center mb-4 gap-2">
+			<a th:href="@{/requests}" class="btn btn-sm btn-outline-secondary">
+				<i class="bi bi-arrow-left"></i>
+			</a>
+			<h5 class="mb-0">Novo Pedido</h5>
+		</div>
+
+		<div class="card border-0 shadow-sm" style="max-width: 600px">
+			<div class="card-body p-4">
+
+				<form th:action="@{/requests}" method="post" th:object="${requestRequest}">
+
+					<div class="mb-3">
+						<label class="form-label">Proprietário</label>
+						<!-- select populado com a lista de owners vinda do controller -->
+						<select class="form-select" th:field="*{ownerPublicId}"
+							th:classappend="${#fields.hasErrors('ownerPublicId')} ? 'is-invalid'">
+							<option value="">-- Seleccione um proprietário --</option>
+							<option th:each="owner : ${owners}" th:value="${owner.publicId}"
+								th:text="${owner.firstName + ' ' + owner.lastName + ' (' + owner.nuit + ')'}">
+							</option>
+						</select>
+						<div class="invalid-feedback" th:errors="*{ownerPublicId}"></div>
+					</div>
+
+					<div class="mb-4">
+						<label class="form-label">Veículo</label>
+						<!-- select populado com a lista de vehicles vinda do controller -->
+						<select class="form-select" th:field="*{vehiclePublicId}"
+							th:classappend="${#fields.hasErrors('vehiclePublicId')} ? 'is-invalid'">
+							<option value="">-- Seleccione um veículo --</option>
+							<option th:each="vehicle : ${vehicles}" th:value="${vehicle.publicId}"
+								th:text="${vehicle.brand + ' ' + vehicle.model + ' (' + vehicle.chassisNumber + ')'}">
+							</option>
+						</select>
+						<div class="invalid-feedback" th:errors="*{vehiclePublicId}"></div>
+					</div>
+
+					<button type="submit" class="btn btn-dark">Criar Pedido</button>
+
+				</form>
+			</div>
+		</div>
+
+	</th:block>
+</body>
+
+</html>

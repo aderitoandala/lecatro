@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	th:replace="~{fragments/layout :: layout('Histórico', 'requests', ~{::conteudo})}">
+
+<body>
+	<th:block th:ref="conteudo">
+
+		<div class="d-flex align-items-center mb-4 gap-2">
+			<a th:href="@{/requests/{id}(id=${request.publicId})}" class="btn btn-sm btn-outline-secondary">
+				<i class="bi bi-arrow-left"></i>
+			</a>
+			<h5 class="mb-0">Histórico do Pedido</h5>
+		</div>
+
+		<div class="card border-0 shadow-sm">
+			<div class="table-responsive">
+				<table class="table table-hover mb-0">
+					<thead class="table-dark">
+						<tr>
+							<th>Evento</th>
+							<th>Descrição</th>
+							<th>Data</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="h : ${history}">
+							<td th:text="${h.event}"></td>
+							<td th:text="${h.description}"></td>
+							<td th:text="${#temporals.format(h.occurredAt, 'dd/MM/yyyy HH:mm')}"></td>
+						</tr>
+						<tr th:if="${#lists.isEmpty(history)}">
+							<td colspan="3" class="text-center text-muted py-4">
+								Nenhum evento registado.
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+	</th:block>
+</body>
+
+</html>

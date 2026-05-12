@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	th:replace="~{fragments/layout :: layout('Matrículas', 'license-plates', ~{::conteudo})}">
+
+<body>
+	<th:block th:ref="conteudo">
+
+		<h5 class="mb-4">Pesquisa de Matrícula</h5>
+
+		<!-- formulário de pesquisa -->
+		<div class="card border-0 shadow-sm mb-4" style="max-width: 500px">
+			<div class="card-body p-4">
+				<form th:action="@{/license-plates/search/result}" method="get">
+					<div class="d-flex gap-2">
+						<input type="text" name="number" class="form-control" placeholder="ex: ABC 123 MC"
+							th:value="${param.number}" />
+						<button type="submit" class="btn btn-dark">
+							<i class="bi bi-search"></i>
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
+
+		<!-- resultado da pesquisa -->
+		<div th:if="${licensePlate}" class="card border-0 shadow-sm" style="max-width: 500px">
+			<div class="card-body p-4">
+
+				<div class="d-flex justify-content-between align-items-start mb-3">
+					<h6 class="card-title mb-0" th:text="${licensePlate.number}"></h6>
+					<span class="badge"
+						th:classappend="${licensePlate.status.name() == 'ACTIVE'} ? 'bg-success' : 'bg-danger'"
+						th:text="${licensePlate.status}">
+					</span>
+				</div>
+
+				<div class="mb-2">
+					<span class="text-muted small">Proprietário</span>
+					<div th:text="${licensePlate.request.owner.firstName + ' ' + licensePlate.request.owner.lastName}">
+					</div>
+				</div>
+
+				<div class="mb-2">
+					<span class="text-muted small">Veículo</span>
+					<div th:text="${licensePlate.request.vehicle.brand + ' ' + licensePlate.request.vehicle.model}">
+					</div>
+				</div>
+
+				<div class="mb-2">
+					<span class="text-muted small">Data de Emissão</span>
+					<div th:text="${#temporals.format(licensePlate.issueDate, 'dd/MM/yyyy')}"></div>
+				</div>
+
+				<!-- cancelar — apenas se activa -->
+				<form th:if="${licensePlate.status.name() == 'ACTIVE'}"
+					th:action="@{/license-plates/{id}/cancel(id=${licensePlate.publicId})}" method="post" class="mt-3">
+					<button type="submit" class="btn btn-sm btn-outline-danger"
+						onclick="return confirm('Confirma o cancelamento desta matrícula?')">
+						<i class="bi bi-x-lg me-1"></i> Cancelar Matrícula
+					</button>
+				</form>
+
+			</div>
+		</div>
+
+		<!-- matrícula não encontrada -->
+		<div th:if="${param.number != null and licensePlate == null}" class="alert alert-warning"
+			style="max-width: 500px">
+			Nenhuma matrícula encontrada para o número indicado.
+		</div>
+
+	</th:block>
+</body>
+
+</html>

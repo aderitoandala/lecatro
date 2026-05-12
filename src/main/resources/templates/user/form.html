@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	th:replace="~{fragments/layout :: layout('Utilizador', 'users', ~{::conteudo})}">
+
+<body>
+	<th:block th:ref="conteudo">
+
+		<div class="d-flex align-items-center mb-4 gap-2">
+			<a th:href="@{/users}" class="btn btn-sm btn-outline-secondary">
+				<i class="bi bi-arrow-left"></i>
+			</a>
+			<h5 class="mb-0" th:text="${user != null} ? 'Editar Utilizador' : 'Novo Utilizador'"></h5>
+		</div>
+
+		<div class="card border-0 shadow-sm" style="max-width: 600px">
+			<div class="card-body p-4">
+
+				<form th:action="${user != null} ? @{/users/{id}/edit(id=${publicId})} : @{/users}" method="post"
+					th:object="${userRequest != null} ? ${userRequest} : ${user}">
+
+					<div class="mb-3">
+						<label class="form-label">Email</label>
+						<input type="email" class="form-control" th:field="*{email}"
+							th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'" />
+						<div class="invalid-feedback" th:errors="*{email}"></div>
+					</div>
+
+					<div class="mb-3">
+						<label class="form-label">Senha</label>
+						<input type="password" class="form-control" th:field="*{password}"
+							th:classappend="${#fields.hasErrors('password')} ? 'is-invalid'" />
+						<div class="invalid-feedback" th:errors="*{password}"></div>
+					</div>
+
+					<div class="mb-3">
+						<label class="form-label">Província</label>
+						<select class="form-select" th:field="*{province}"
+							th:classappend="${#fields.hasErrors('province')} ? 'is-invalid'">
+							<option value="">-- Seleccione --</option>
+							<!-- itera sobre os valores do enum Province -->
+							<option th:each="p : ${T(com.dery.lecatro.entity.enums.Province).values()}" th:value="${p}"
+								th:text="${p}">
+							</option>
+						</select>
+						<div class="invalid-feedback" th:errors="*{province}"></div>
+					</div>
+
+					<div class="mb-4">
+						<label class="form-label">Função</label>
+						<select class="form-select" th:field="*{role}"
+							th:classappend="${#fields.hasErrors('role')} ? 'is-invalid'">
+							<option value="">-- Seleccione --</option>
+							<!-- itera sobre os valores do enum Role -->
+							<option th:each="r : ${T(com.dery.lecatro.entity.enums.Role).values()}" th:value="${r}"
+								th:text="${r}">
+							</option>
+						</select>
+						<div class="invalid-feedback" th:errors="*{role}"></div>
+					</div>
+
+					<button type="submit" class="btn btn-dark">
+						<span th:text="${user != null} ? 'Actualizar' : 'Guardar'"></span>
+					</button>
+
+				</form>
+			</div>
+		</div>
+
+	</th:block>
+</body>
+
+</html>

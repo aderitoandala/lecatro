@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	th:replace="~{fragments/layout :: layout('Detalhe do Pedido', 'requests', ~{::conteudo})}">
+
+<body>
+	<th:block th:ref="conteudo">
+
+		<div th:replace="~{fragments/alerts :: alerts}"></div>
+
+		<div class="d-flex align-items-center mb-4 gap-2">
+			<a th:href="@{/requests}" class="btn btn-sm btn-outline-secondary">
+				<i class="bi bi-arrow-left"></i>
+			</a>
+			<h5 class="mb-0">Detalhe do Pedido</h5>
+		</div>
+
+		<div class="row g-4">
+
+			<!-- informação do pedido -->
+			<div class="col-md-6">
+				<div class="card border-0 shadow-sm h-100">
+					<div class="card-body p-4">
+						<h6 class="card-title mb-3">Informação do Pedido</h6>
+
+						<div class="mb-2">
+							<span class="text-muted small">Estado</span>
+							<div>
+								<span class="badge" th:classappend="${request.status.name() == 'PENDING'}   ? 'bg-warning text-dark' :
+                                                  (${request.status.name() == 'PAID'}     ? 'bg-info text-dark'    :
+                                                  (${request.status.name() == 'ISSUED'}   ? 'bg-success'           :
+                                                                                             'bg-danger'))"
+									th:text="${request.status}">
+								</span>
+							</div>
+						</div>
+
+						<div class="mb-2">
+							<span class="text-muted small">Data de Criação</span>
+							<div th:text="${#temporals.format(request.createdAt, 'dd/MM/yyyy HH:mm')}"></div>
+						</div>
+
+						<div class="mb-2">
+							<span class="text-muted small">Operador</span>
+							<div th:text="${request.user.email}"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- proprietário e veículo -->
+			<div class="col-md-6">
+				<div class="card border-0 shadow-sm h-100">
+					<div class="card-body p-4">
+						<h6 class="card-title mb-3">Proprietário</h6>
+						<div th:text="${request.owner.firstName + ' ' + request.owner.lastName}"></div>
+						<div class="text-muted small" th:text="'NUIT: ' + ${request.owner.nuit}"></div>
+
+						<hr />
+
+						<h6 class="card-title mb-3">Veículo</h6>
+						<div th:text="${request.vehicle.brand + ' ' + request.vehicle.model}"></div>
+						<div class="text-muted small" th:text="'Chassis: ' + ${request.vehicle.chassisNumber}"></div>
+						<div class="text-muted small" th:text="'Ano: ' + ${request.vehicle.manufactureYear}"></div>
+					</div>
+				</div>
+			</div>
+
+			<!-- acções disponíveis por estado -->
+			<div class="col-12">
+				<div class="card border-0 shadow-sm">
+					<div class="card-body p-4">
+						<h6 class="card-title mb-3">Acções</h6>
+
+						<div class="d-flex gap-2">
+
+							<!-- registar pagamento — apenas se PENDING -->
+							<a th:if="${request.status.name() == 'PENDING'}"
+								th:href="@{/payments/new/{id}(id=${request.publicId})}" class="btn btn-sm btn-dark">
+								<i class="bi bi-cash me-1"></i> Registar Pagamento
+							</a>
+
+							<!-- emitir matrícula — apenas se PAID -->
+							<form th:if="${request.status.name() == 'PAID'}"
+								th:action="@{/license-plates/issue/{id}(id=${request.publicId})}" method="post">
+								<button type="submit" class="btn btn-sm btn-success"
+									onclick="return confirm('Confirma a emissão da matrícula?')">
+									<i class="bi bi-credit-card me-1"></i> Emitir Matrícula
+								</button>
+							</form>
+
+							<!-- ver histórico — sempre disponível -->
+							<a th:href="@{/history/{id}(id=${request.publicId})}"
+								class="btn btn-sm btn-outline-secondary">
+								<i class="bi bi-clock-history me-1"></i> Ver Histórico
+							</a>
+
+							<!-- cancelar — apenas se PENDING ou PAID -->
+							<form th:if="${request.status.name() == 'PENDING' or request.status.name() == 'PAID'}"
+								th:action="@{/requests/{id}/cancel(id=${request.publicId})}" method="post">
+								<button type="submit" class="btn btn-sm btn-outline-danger"
+									onclick="return confirm('Confirma o cancelamento?')">
+									<i class="bi bi-x-lg me-1"></i> Cancelar Pedido
+								</button>
+							</form>
+
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+	</th:block>
+</body>
+
+</html>

@@ -3,7 +3,7 @@
 	th:replace="~{fragments/layout :: layout('Novo Pedido', 'requests', ~{::conteudo})}">
 
 <body>
-	<th:block th:ref="conteudo">
+	<th:block th:fragment="conteudo">
 
 		<div class="d-flex align-items-center mb-4 gap-2">
 			<a th:href="@{/requests}" class="btn btn-sm btn-outline-secondary">

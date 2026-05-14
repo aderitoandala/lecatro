@@ -1,218 +1,174 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/springsecurity6">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/springsecurity6"
+	th:fragment="layout(titulo, activePage, conteudo)">
 
-<!-- ===================== HEAD ===================== -->
-<head th:fragment="head(titulo)">
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title th:text="${titulo} + ' | LECATRO'">LECATRO</title>
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title th:text="${titulo} + ' | LECATRO'">LECATRO</title>
 
-    <!-- Bootstrap 5.3 — pesquisa na biblioteca -->
-    <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
 
-    <!-- Bootstrap Icons — pesquisa na biblioteca -->
-    <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"/>
+	<style>
+		:root {
+			--sidebar-bg: #1a2332;
+			--sidebar-text: #a8b2c1;
+			--sidebar-active: #ffffff;
+			--sidebar-accent: #e8a020;
+			--content-bg: #f4f6f9;
+		}
 
-    <style>
-        /* variáveis de cor do sistema */
-        :root {
-            --sidebar-bg: #1a2332;
-            --sidebar-text: #a8b2c1;
-            --sidebar-active: #ffffff;
-            --sidebar-accent: #e8a020;
-            --header-bg: #ffffff;
-            --content-bg: #f4f6f9;
-        }
+		body {
+			background-color: var(--content-bg);
+			font-family: 'Segoe UI', sans-serif;
+		}
 
-        body {
-            background-color: var(--content-bg);
-            font-family: 'Segoe UI', sans-serif;
-        }
+		#sidebar {
+			width: 250px;
+			min-height: 100vh;
+			background-color: var(--sidebar-bg);
+			position: fixed;
+			top: 0;
+			left: 0;
+			z-index: 100;
+		}
 
-        /* sidebar fixa à esquerda */
-        #sidebar {
-            width: 250px;
-            min-height: 100vh;
-            background-color: var(--sidebar-bg);
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 100;
-        }
+		#sidebar .sidebar-brand {
+			padding: 1.5rem;
+			color: var(--sidebar-active);
+			font-size: 1.2rem;
+			font-weight: 700;
+			border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+		}
 
-        /* logo no topo da sidebar */
-        #sidebar .sidebar-brand {
-            padding: 1.5rem;
-            color: var(--sidebar-active);
-            font-size: 1.2rem;
-            font-weight: 700;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
+		#sidebar .sidebar-brand span {
+			color: var(--sidebar-accent);
+		}
 
-        /* accent na marca */
-        #sidebar .sidebar-brand span {
-            color: var(--sidebar-accent);
-        }
+		#sidebar .nav-link {
+			color: var(--sidebar-text);
+			padding: 0.75rem 1.5rem;
+			display: flex;
+			align-items: center;
+			gap: 0.75rem;
+			transition: all 0.2s;
+		}
 
-        /* links da sidebar */
-        #sidebar .nav-link {
-            color: var(--sidebar-text);
-            padding: 0.75rem 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            transition: all 0.2s;
-        }
+		#sidebar .nav-link:hover,
+		#sidebar .nav-link.active {
+			color: var(--sidebar-active);
+			background-color: rgba(255, 255, 255, 0.08);
+			border-left: 3px solid var(--sidebar-accent);
+		}
 
-        #sidebar .nav-link:hover,
-        #sidebar .nav-link.active {
-            color: var(--sidebar-active);
-            background-color: rgba(255,255,255,0.08);
-            border-left: 3px solid var(--sidebar-accent);
-        }
+		#sidebar .nav-section {
+			padding: 1rem 1.5rem 0.25rem;
+			font-size: 0.7rem;
+			text-transform: uppercase;
+			letter-spacing: 0.1em;
+			color: rgba(168, 178, 193, 0.5);
+		}
 
-        /* secção com label na sidebar */
-        #sidebar .nav-section {
-            padding: 1rem 1.5rem 0.25rem;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: rgba(168,178,193,0.5);
-        }
+		#main {
+			margin-left: 250px;
+		}
 
-        /* conteúdo principal afastado da sidebar */
-        #main {
-            margin-left: 250px;
-        }
+		#header {
+			background-color: #ffffff;
+			padding: 1rem 2rem;
+			border-bottom: 1px solid #e0e0e0;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
 
-        /* header superior */
-        #header {
-            background-color: var(--header-bg);
-            padding: 1rem 2rem;
-            border-bottom: 1px solid #e0e0e0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        /* área de conteúdo */
-        #content {
-            padding: 2rem;
-        }
-    </style>
+		#content {
+			padding: 2rem;
+		}
+	</style>
 </head>
 
-<!-- ===================== SIDEBAR ===================== -->
-<nav id="sidebar" th:fragment="sidebar">
+<body>
 
-    <!-- marca -->
-    <div class="sidebar-brand">
-        <span>LECA</span>TRO
-    </div>
+	<!-- sidebar -->
+	<nav id="sidebar">
+		<div class="sidebar-brand">
+			<span>LECA</span>TRO
+		</div>
+		<ul class="nav flex-column mt-2">
 
-    <ul class="nav flex-column mt-2">
+			<li class="nav-item">
+				<a class="nav-link" th:href="@{/dashboard}" th:classappend="${activePage == 'dashboard'} ? 'active'">
+					<i class="bi bi-speedometer2"></i> Dashboard
+				</a>
+			</li>
 
-        <!-- dashboard -->
-        <li class="nav-item">
-            <a class="nav-link" th:href="@{/dashboard}"
-               th:classappend="${activePage == 'dashboard'} ? 'active'">
-                <i class="bi bi-speedometer2"></i> Dashboard
-            </a>
-        </li>
+			<div class="nav-section">Gestão</div>
 
-        <div class="nav-section">Gestão</div>
+			<li class="nav-item">
+				<a class="nav-link" th:href="@{/requests}" th:classappend="${activePage == 'requests'} ? 'active'">
+					<i class="bi bi-file-earmark-text"></i> Pedidos
+				</a>
+			</li>
 
-        <!-- pedidos -->
-        <li class="nav-item">
-            <a class="nav-link" th:href="@{/requests}"
-               th:classappend="${activePage == 'requests'} ? 'active'">
-                <i class="bi bi-file-earmark-text"></i> Pedidos
-            </a>
-        </li>
+			<li class="nav-item">
+				<a class="nav-link" th:href="@{/owners}" th:classappend="${activePage == 'owners'} ? 'active'">
+					<i class="bi bi-person"></i> Proprietários
+				</a>
+			</li>
 
-        <!-- proprietários -->
-        <li class="nav-item">
-            <a class="nav-link" th:href="@{/owners}"
-               th:classappend="${activePage == 'owners'} ? 'active'">
-                <i class="bi bi-person"></i> Proprietários
-            </a>
-        </li>
+			<li class="nav-item">
+				<a class="nav-link" th:href="@{/vehicles}" th:classappend="${activePage == 'vehicles'} ? 'active'">
+					<i class="bi bi-car-front"></i> Veículos
+				</a>
+			</li>
 
-        <!-- veículos -->
-        <li class="nav-item">
-            <a class="nav-link" th:href="@{/vehicles}"
-               th:classappend="${activePage == 'vehicles'} ? 'active'">
-                <i class="bi bi-car-front"></i> Veículos
-            </a>
-        </li>
+			<li class="nav-item">
+				<a class="nav-link" th:href="@{/license-plates/search}"
+					th:classappend="${activePage == 'license-plates'} ? 'active'">
+					<i class="bi bi-credit-card"></i> Matrículas
+				</a>
+			</li>
 
-        <!-- matrículas -->
-        <li class="nav-item">
-            <a class="nav-link" th:href="@{/license-plates/search}"
-               th:classappend="${activePage == 'license-plates'} ? 'active'">
-                <i class="bi bi-credit-card"></i> Matrículas
-            </a>
-        </li>
+			<div class="nav-section" sec:authorize="hasRole('ADMIN')">Administração</div>
+			<li class="nav-item" sec:authorize="hasRole('ADMIN')">
+				<a class="nav-link" th:href="@{/users}" th:classappend="${activePage == 'users'} ? 'active'">
+					<i class="bi bi-people"></i> Utilizadores
+				</a>
+			</li>
 
-        <!-- utilizadores — apenas ADMIN -->
-        <div class="nav-section" sec:authorize="hasRole('ADMIN')">Administração</div>
-        <li class="nav-item" sec:authorize="hasRole('ADMIN')">
-            <a class="nav-link" th:href="@{/users}"
-               th:classappend="${activePage == 'users'} ? 'active'">
-                <i class="bi bi-people"></i> Utilizadores
-            </a>
-        </li>
+			<div class="nav-section">Conta</div>
+			<li class="nav-item">
+				<form th:action="@{/logout}" method="post">
+					<button type="submit" class="nav-link border-0 bg-transparent w-100 text-start">
+						<i class="bi bi-box-arrow-left"></i> Sair
+					</button>
+				</form>
+			</li>
 
-        <div class="nav-section">Conta</div>
+		</ul>
+	</nav>
 
-        <!-- logout -->
-        <li class="nav-item">
-            <form th:action="@{/logout}" method="post">
-                <button type="submit" class="nav-link border-0 bg-transparent w-100 text-start">
-                    <i class="bi bi-box-arrow-left"></i> Sair
-                </button>
-            </form>
-        </li>
+	<!-- área principal -->
+	<div id="main">
 
-    </ul>
-</nav>
+		<div id="header">
+			<h6 class="mb-0 text-muted" th:text="${titulo}"></h6>
+			<span class="text-muted small">
+				<i class="bi bi-person-circle"></i>
+				<sec:authentication property="name" />
+			</span>
+		</div>
 
-<!-- ===================== LAYOUT COMPLETO ===================== -->
-<div th:fragment="layout(titulo, activePage, conteudo)">
-    <html>
-    <head th:replace="~{fragments/layout :: head(${titulo})}"></head>
-    <body>
+		<div id="content">
+			<!-- conteúdo injectado por cada página -->
+			<th:block th:replace="${conteudo}" />
+		</div>
 
-        <!-- sidebar -->
-        <div th:replace="~{fragments/layout :: sidebar}"></div>
+	</div>
 
-        <!-- área principal -->
-        <div id="main">
-
-            <!-- header -->
-            <div id="header">
-                <h6 class="mb-0 text-muted" th:text="${titulo}"></h6>
-                <!-- utilizador autenticado -->
-                <span class="text-muted small">
-                    <i class="bi bi-person-circle"></i>
-                    <sec:authentication property="name"/>
-                </span>
-            </div>
-
-            <!-- conteúdo injectado por cada página -->
-            <div id="content">
-                <th:block th:replace="${conteudo}"></th:block>
-            </div>
-
-        </div>
-
-        <!-- Bootstrap JS — pesquisa na biblioteca -->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    </body>
-    </html>
-</div>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+</body>
 
 </html>

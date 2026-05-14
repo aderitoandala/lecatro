@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.dery.lecatro.dto.request.UserRequest;
 import com.dery.lecatro.dto.response.UserResponse;
 import com.dery.lecatro.entity.User;
+import com.dery.lecatro.exception.ResourceNotFoundException;
 import com.dery.lecatro.mapper.UserMapper;
 import com.dery.lecatro.repository.UserRepository;
 import com.dery.lecatro.service.UserService;
@@ -45,7 +46,7 @@ public class UserServiceImpl implements UserService {
 	@Transactional(readOnly = true)
 	public UserResponse findByPublicId(UUID publicId) {
 		return userRepository.findByPublicId(publicId).map(userMapper::toResponse)
-				.orElseThrow(() -> new RuntimeException("Utilizador não encontrado"));
+				.orElseThrow(() -> new ResourceNotFoundException("Utilizador não encontrado"));
 	}
 
 	@Override
@@ -53,7 +54,7 @@ public class UserServiceImpl implements UserService {
 	public UserResponse update(UUID publicId, UserRequest request) {
 
 		User user = userRepository.findByPublicId(publicId)
-				.orElseThrow(() -> new RuntimeException("Utilizador não encontrado"));
+				.orElseThrow(() -> new ResourceNotFoundException("Utilizador não encontrado"));
 
 		user.setEmail(request.email());
 		user.setPassword(passwordEncoder.encode(request.password()));
@@ -67,7 +68,7 @@ public class UserServiceImpl implements UserService {
 	@Transactional
 	public void delete(UUID publicId) {
 		User user = userRepository.findByPublicId(publicId)
-				.orElseThrow(() -> new RuntimeException("Utilizador não encontrado"));
+				.orElseThrow(() -> new ResourceNotFoundException("Utilizador não encontrado"));
 
 		userRepository.delete(user);
 	}

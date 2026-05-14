@@ -15,6 +15,8 @@ import com.dery.lecatro.entity.User;
 import com.dery.lecatro.entity.Vehicle;
 import com.dery.lecatro.entity.enums.HistoryEvent;
 import com.dery.lecatro.entity.enums.RequestStatus;
+import com.dery.lecatro.exception.BusinessException;
+import com.dery.lecatro.exception.ResourceNotFoundException;
 import com.dery.lecatro.mapper.RequestMapper;
 import com.dery.lecatro.repository.OwnerRepository;
 import com.dery.lecatro.repository.RequestRepository;
@@ -43,15 +45,15 @@ public class RequestServiceImpl implements RequestService {
 	public RequestResponse create(RequestRequest request) {
 
 		Owner owner = ownerRepository.findByPublicId(request.ownerPublicId())
-				.orElseThrow(() -> new RuntimeException("Proprietário não encontrado"));
+				.orElseThrow(() -> new ResourceNotFoundException("Proprietário não encontrado"));
 
 		Vehicle vehicle = vehicleRepository.findByPublicId(request.vehiclePublicId())
-				.orElseThrow(() -> new RuntimeException("Veículo não encontrado"));
+				.orElseThrow(() -> new ResourceNotFoundException("Veículo não encontrado"));
 
 		// obtem o utilizador autenticado que esta a processar o pedido
 		String email = SecurityContextHolder.getContext().getAuthentication().getName();
 		User user = userRepository.findByEmail(email)
-				.orElseThrow(() -> new RuntimeException("Utilizador autenticado não encontrado"));
+				.orElseThrow(() -> new ResourceNotFoundException("Utilizador autenticado não encontrado"));
 
 		// cria um novo pedido com status PENDING
 		Request newRequest = Request.builder().owner(owner).vehicle(vehicle).user(user).build();
@@ -78,7 +80,7 @@ public class RequestServiceImpl implements RequestService {
 	@Transactional(readOnly = true)
 	public RequestResponse findByPublicId(UUID publicId) {
 		return requestRepository.findByPublicId(publicId).map(requestMapper::toResponse)
-				.orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+				.orElseThrow(() -> new ResourceNotFoundException("Pedido não encontrado"));
 	}
 
 	@Override
@@ -91,7 +93,7 @@ public class RequestServiceImpl implements RequestService {
 	@Transactional(readOnly = true)
 	public List<RequestResponse> findByOwner(UUID ownerPublicId) {
 		Owner owner = ownerRepository.findByPublicId(ownerPublicId)
-				.orElseThrow(() -> new RuntimeException("Proprietário não encontrado"));
+				.orElseThrow(() -> new ResourceNotFoundException("Proprietário não encontrado"));
 
 		return requestRepository.findByOwnerId(owner.getId()).stream().map(requestMapper::toResponse).toList();
 	}
@@ -100,10 +102,10 @@ public class RequestServiceImpl implements RequestService {
 	@Transactional
 	public RequestResponse cancel(UUID publicId) {
 		Request request = requestRepository.findByPublicId(publicId)
-				.orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+				.orElseThrow(() -> new ResourceNotFoundException("Pedido não encontrado"));
 
 		if (request.getStatus() == RequestStatus.ISSUED) {
-			throw new RuntimeException("Não é possível cancelar um pedido já emitido");
+			throw new BusinessException("Não é possível cancelar um pedido já emitido");
 		}
 
 		request.setStatus(RequestStatus.CANCELLED);

@@ -9,6 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.dery.lecatro.dto.request.OwnerRequest;
 import com.dery.lecatro.dto.response.OwnerResponse;
 import com.dery.lecatro.entity.Owner;
+import com.dery.lecatro.exception.DataIntegrityException;
+import com.dery.lecatro.exception.ResourceNotFoundException;
 import com.dery.lecatro.mapper.OwnerMapper;
 import com.dery.lecatro.repository.OwnerRepository;
 import com.dery.lecatro.service.OwnerService;
@@ -27,7 +29,7 @@ public class OwnerServiceImpl implements OwnerService {
 	public OwnerResponse create(OwnerRequest request) {
 
 		if (ownerRepository.existsByNuit(request.nuit())) {
-			throw new RuntimeException("Já existe um proprietário com este NUIT");
+			throw new DataIntegrityException("Já existe um proprietário com este NUIT");
 		}
 
 		Owner owner = ownerMapper.toEntity(request);
@@ -44,14 +46,14 @@ public class OwnerServiceImpl implements OwnerService {
 	@Transactional(readOnly = true)
 	public OwnerResponse findByPublicId(UUID publicId) {
 		return ownerRepository.findByPublicId(publicId).map(ownerMapper::toResponse)
-				.orElseThrow(() -> new RuntimeException("Proprietário não encontrado"));
+				.orElseThrow(() -> new ResourceNotFoundException("Proprietário não encontrado"));
 	}
 
 	@Override
 	@Transactional
 	public OwnerResponse update(UUID publicId, OwnerRequest request) {
 		Owner owner = ownerRepository.findByPublicId(publicId)
-				.orElseThrow(() -> new RuntimeException("Proprietário não encontrado"));
+				.orElseThrow(() -> new ResourceNotFoundException("Proprietário não encontrado"));
 
 		owner.setFirstName(request.firstName());
 		owner.setLastName(request.lastName());
@@ -66,7 +68,7 @@ public class OwnerServiceImpl implements OwnerService {
 	@Transactional
 	public void delete(UUID publicId) {
 		Owner owner = ownerRepository.findByPublicId(publicId)
-				.orElseThrow(() -> new RuntimeException("Proprietário não encontrado"));
+				.orElseThrow(() -> new ResourceNotFoundException("Proprietário não encontrado"));
 
 		ownerRepository.delete(owner);
 	}

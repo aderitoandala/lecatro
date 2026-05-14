@@ -12,6 +12,9 @@ import com.dery.lecatro.entity.Request;
 import com.dery.lecatro.entity.enums.HistoryEvent;
 import com.dery.lecatro.entity.enums.LicensePlateStatus;
 import com.dery.lecatro.entity.enums.RequestStatus;
+import com.dery.lecatro.exception.BusinessException;
+import com.dery.lecatro.exception.DataIntegrityException;
+import com.dery.lecatro.exception.ResourceNotFoundException;
 import com.dery.lecatro.mapper.LicensePlateMapper;
 import com.dery.lecatro.repository.LicensePlateRepository;
 import com.dery.lecatro.repository.RequestRepository;
@@ -37,17 +40,17 @@ public class LicensePlateServiceImpl implements LicensePlateService {
 	@Transactional
 	public LicensePlateResponse issue(UUID requestPublicId) {
 		Request request = requestRepository.findByPublicId(requestPublicId)
-				.orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+				.orElseThrow(() -> new ResourceNotFoundException("Pedido não encontrado"));
 
 		// A matricula so e emitida apos a confirmacao do pagamento
 		if (request.getStatus() != RequestStatus.PAID) {
-			throw new RuntimeException("O pagamento ainda não foi confirmado");
+			throw new BusinessException("O pagamento ainda não foi confirmado");
 		}
 
 		// O veículo não pode ter matrícula activa
 		if (licensePlateRepository.existsByRequestVehicleIdAndStatus(request.getVehicle().getId(),
 				LicensePlateStatus.ACTIVE)) {
-			throw new RuntimeException("Este veículo já tem uma matrícula activa");
+			throw new DataIntegrityException("Este veículo já tem uma matrícula activa");
 		}
 
 		// gera o número da matrícula
@@ -81,14 +84,14 @@ public class LicensePlateServiceImpl implements LicensePlateService {
 	@Transactional(readOnly = true)
 	public LicensePlateResponse findByNumber(String number) {
 		return licensePlateRepository.findByNumber(number).map(licensePlateMapper::toResponse)
-				.orElseThrow(() -> new RuntimeException("Matrícula não encontrada"));
+				.orElseThrow(() -> new ResourceNotFoundException("Matrícula não encontrada"));
 	}
 
 	@Override
 	@Transactional
 	public LicensePlateResponse cancel(UUID publicId) {
 		LicensePlate licensePlate = licensePlateRepository.findByPublicId(publicId)
-				.orElseThrow(() -> new RuntimeException("Matrícula não encontrada"));
+				.orElseThrow(() -> new ResourceNotFoundException("Matrícula não encontrada"));
 
 		licensePlate.setStatus(LicensePlateStatus.CANCELLED);
 		LicensePlate saved = licensePlateRepository.save(licensePlate);

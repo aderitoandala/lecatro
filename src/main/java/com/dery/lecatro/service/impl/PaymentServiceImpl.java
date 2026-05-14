@@ -12,6 +12,8 @@ import com.dery.lecatro.entity.Request;
 import com.dery.lecatro.entity.enums.HistoryEvent;
 import com.dery.lecatro.entity.enums.PaymentStatus;
 import com.dery.lecatro.entity.enums.RequestStatus;
+import com.dery.lecatro.exception.BusinessException;
+import com.dery.lecatro.exception.ResourceNotFoundException;
 import com.dery.lecatro.mapper.PaymentMapper;
 import com.dery.lecatro.repository.PaymentRepository;
 import com.dery.lecatro.repository.RequestRepository;
@@ -37,11 +39,11 @@ public class PaymentServiceImpl implements PaymentService {
 	public PaymentResponse create(PaymentRequest request) {
 
 		Request existingRequest = requestRepository.findByPublicId(request.requestPublicId())
-				.orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+				.orElseThrow(() -> new ResourceNotFoundException("Pedido não encontrado"));
 
 		// só é possível registar pagamentos com pedidos pendentes
 		if (existingRequest.getStatus() != RequestStatus.PENDING) {
-			throw new RuntimeException("O pedido não está em estado pendente");
+			throw new BusinessException("O pedido não está em estado pendente");
 		}
 
 		// cria o pagamento com estado pendente
@@ -60,7 +62,7 @@ public class PaymentServiceImpl implements PaymentService {
 	@Transactional
 	public PaymentResponse confirm(UUID publicId) {
 		Payment payment = paymentRepository.findByPublicId(publicId)
-				.orElseThrow(() -> new RuntimeException("Pagamento não encontrado"));
+				.orElseThrow(() -> new ResourceNotFoundException("Pagamento não encontrado"));
 
 		// confirma o pagamento
 		payment.setStatus(PaymentStatus.CONFIRMED);
@@ -85,7 +87,7 @@ public class PaymentServiceImpl implements PaymentService {
 	@Transactional
 	public PaymentResponse reject(UUID publicId) {
 		Payment payment = paymentRepository.findByPublicId(publicId)
-				.orElseThrow(() -> new RuntimeException("Pagamento não encontrado"));
+				.orElseThrow(() -> new ResourceNotFoundException("Pagamento não encontrado"));
 
 		payment.setStatus(PaymentStatus.REJECTED);
 		paymentRepository.save(payment);
@@ -100,9 +102,9 @@ public class PaymentServiceImpl implements PaymentService {
 	@Transactional(readOnly = true)
 	public PaymentResponse findByRequest(UUID requestPublicId) {
 		Request request = requestRepository.findByPublicId(requestPublicId)
-				.orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+				.orElseThrow(() -> new ResourceNotFoundException("Pedido não encontrado"));
 
 		return paymentRepository.findByRequestId(request.getId()).map(paymentMapper::toResponse)
-				.orElseThrow(() -> new RuntimeException("Pagamento não encontrado"));
+				.orElseThrow(() -> new ResourceNotFoundException("Pagamento não encontrado"));
 	}
 }

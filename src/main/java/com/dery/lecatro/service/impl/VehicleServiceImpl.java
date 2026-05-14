@@ -9,6 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.dery.lecatro.dto.request.VehicleRequest;
 import com.dery.lecatro.dto.response.VehicleResponse;
 import com.dery.lecatro.entity.Vehicle;
+import com.dery.lecatro.exception.DataIntegrityException;
+import com.dery.lecatro.exception.ResourceNotFoundException;
 import com.dery.lecatro.mapper.VehicleMapper;
 import com.dery.lecatro.repository.VehicleRepository;
 import com.dery.lecatro.service.VehicleService;
@@ -27,7 +29,7 @@ public class VehicleServiceImpl implements VehicleService {
 	public VehicleResponse create(VehicleRequest request) {
 
 		if (vehicleRepository.existsByChassisNumber(request.chassisNumber())) {
-			throw new RuntimeException("Já existe um veículo com este número de chassis");
+			throw new DataIntegrityException("Já existe um veículo com este número de chassis");
 		}
 
 		Vehicle vehicle = vehicleMapper.toEntity(request);
@@ -44,14 +46,14 @@ public class VehicleServiceImpl implements VehicleService {
 	@Transactional(readOnly = true)
 	public VehicleResponse findByPublicId(UUID publicId) {
 		return vehicleRepository.findByPublicId(publicId).map(vehicleMapper::toResponse)
-				.orElseThrow(() -> new RuntimeException("Veículo não encontrado"));
+				.orElseThrow(() -> new ResourceNotFoundException("Veículo não encontrado"));
 	}
 
 	@Override
 	@Transactional
 	public VehicleResponse update(UUID publicId, VehicleRequest request) {
 		Vehicle vehicle = vehicleRepository.findByPublicId(publicId)
-				.orElseThrow(() -> new RuntimeException("Veículo não encontrado"));
+				.orElseThrow(() -> new ResourceNotFoundException("Veículo não encontrado"));
 
 		vehicle.setBrand(request.brand());
 		vehicle.setModel(request.model());
@@ -66,7 +68,7 @@ public class VehicleServiceImpl implements VehicleService {
 	@Transactional
 	public void delete(UUID publicId) {
 		Vehicle vehicle = vehicleRepository.findByPublicId(publicId)
-				.orElseThrow(() -> new RuntimeException("Veículo não encontrado"));
+				.orElseThrow(() -> new ResourceNotFoundException("Veículo não encontrado"));
 
 		vehicleRepository.delete(vehicle);
 	}

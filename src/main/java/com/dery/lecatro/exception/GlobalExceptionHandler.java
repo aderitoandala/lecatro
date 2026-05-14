@@ -1,0 +1,53 @@
+package com.dery.lecatro.exception;
+
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@ControllerAdvice
+public class GlobalExceptionHandler {
+
+	@ExceptionHandler(ResourceNotFoundException.class)
+	public String handleEntityNotFound(ResourceNotFoundException ex, RedirectAttributes redirectAttributes) {
+
+		log.warn("Resource not found: {}", ex.getMessage(), ex);
+
+		redirectAttributes.addFlashAttribute("erro", ex.getMessage());
+		
+		return "redirect:/dashboard";
+	}
+
+	@ExceptionHandler(BusinessException.class)
+	public String handleBusiness(BusinessException ex, RedirectAttributes redirectAttributes) {
+		
+		log.warn("Business rule violation: {}", ex.getMessage());
+		
+		redirectAttributes.addFlashAttribute("erro", ex.getMessage());
+		
+		return "redirect:/dashboard";
+	}
+
+	@ExceptionHandler(DataIntegrityException.class)
+	public String handleDataIntegrityViolation(DataIntegrityException ex, RedirectAttributes redirectAttributes) {
+		
+		log.warn("Data integrity violation: {}", ex.getMessage());
+		
+		redirectAttributes.addFlashAttribute("erro", ex.getMessage());
+		
+		return "redirect:/dashboard";
+	}
+
+	@ExceptionHandler(Exception.class)
+	public String handleGeneric(Exception ex, Model model) {
+
+		log.error("Unexpected error: {}", ex.getMessage(), ex);
+		
+		model.addAttribute("erro", "Ocorreu um erro inesperado. Tente novamente.");
+		
+		return "error";
+	}
+}

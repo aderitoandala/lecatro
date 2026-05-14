@@ -10,6 +10,7 @@ import com.dery.lecatro.dto.response.HistoryResponse;
 import com.dery.lecatro.entity.History;
 import com.dery.lecatro.entity.Request;
 import com.dery.lecatro.entity.enums.HistoryEvent;
+import com.dery.lecatro.exception.ResourceNotFoundException;
 import com.dery.lecatro.mapper.HistoryMapper;
 import com.dery.lecatro.repository.HistoryRepository;
 import com.dery.lecatro.repository.RequestRepository;
@@ -29,7 +30,7 @@ public class HistoryServiceImpl implements HistoryService {
 	@Transactional
 	public void record(UUID requestPublicId, HistoryEvent event, String description) {
 		Request request = requestRepository.findByPublicId(requestPublicId)
-				.orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+				.orElseThrow(() -> new ResourceNotFoundException("Pedido não encontrado"));
 
 		
 		History history = History.builder().request(request).event(event).description(description).build();
@@ -41,7 +42,7 @@ public class HistoryServiceImpl implements HistoryService {
 	@Transactional(readOnly = true)
 	public List<HistoryResponse> findByRequest(UUID requestPublicId) {
 		Request request = requestRepository.findByPublicId(requestPublicId)
-				.orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+				.orElseThrow(() -> new ResourceNotFoundException("Pedido não encontrado"));
 
 		// exibe o historico de um pedido a partir do evento mais recente
 		return historyRepository.findByRequestIdOrderByOccurredAtDesc(request.getId()).stream()

@@ -1,5 +1,6 @@
 package com.dery.lecatro.entity;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import com.dery.lecatro.entity.enums.Province;
@@ -51,6 +52,13 @@ public class User {
 	@Enumerated(EnumType.STRING)
 	@Column(name = "user_role", nullable = false)
 	private Role role;
+
+	@Builder.Default
+	@Column(nullable = false, columnDefinition = "integer default 0")
+	private Integer failedAttempts = 0;
+
+	@Column(nullable = true)
+	private LocalDateTime lockedUntil;
 
 	@PrePersist
 	private void prePersist() {

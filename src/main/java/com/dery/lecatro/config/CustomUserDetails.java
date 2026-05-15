@@ -1,5 +1,6 @@
 package com.dery.lecatro.config;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -40,4 +41,13 @@ public class CustomUserDetails implements UserDetails {
 	public User getUser() {
 		return user;
 	}
+
+	@Override
+	public boolean isAccountNonLocked() {
+		if (user.getLockedUntil() == null)
+			return true;
+
+		return LocalDateTime.now().isAfter(user.getLockedUntil());
+	}
+
 }

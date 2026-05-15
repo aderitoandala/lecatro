@@ -1,6 +1,5 @@
 package com.dery.lecatro.entity;
 
-
 import java.time.LocalDateTime;
 
 import com.dery.lecatro.entity.enums.HistoryEvent;
@@ -45,7 +44,7 @@ public class History {
 	@Column(nullable = false)
 	private HistoryEvent event;
 
-	@Column(nullable = false)
+	@Column(name = "event_description", nullable = false)
 	private String description;
 
 	@Column(nullable = false, updatable = false)

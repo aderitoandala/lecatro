@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.dery.lecatro.dto.request.VehicleRequest;
+import com.dery.lecatro.dto.response.VehicleResponse;
+import com.dery.lecatro.entity.Vehicle;
 import com.dery.lecatro.service.VehicleService;
 
 import jakarta.validation.Valid;
@@ -33,35 +35,39 @@ public class VehicleController {
 
 	@GetMapping("/new")
 	public String createForm(Model model) {
-		model.addAttribute("vehicleRequest", new VehicleRequest(null, null, null, null, null));
+		model.addAttribute("form", new VehicleRequest(null, null, null, null, null));
 		return "vehicle/form";
 	}
 
 	@PostMapping
-	public String create(@Valid @ModelAttribute VehicleRequest vehicleRequest, BindingResult result,
+	public String create(@Valid @ModelAttribute VehicleRequest form, BindingResult result,
 			RedirectAttributes redirectAttributes) {
 		if (result.hasErrors())
 			return "vehicle/form";
 
-		vehicleService.create(vehicleRequest);
+		vehicleService.create(form);
 		redirectAttributes.addFlashAttribute("mensagem", "Veículo criado com sucesso");
 		return "redirect:/vehicles";
 	}
 
 	@GetMapping("/{publicId}/edit")
 	public String editForm(@PathVariable UUID publicId, Model model) {
-		model.addAttribute("vehicle", vehicleService.findByPublicId(publicId));
+
+		VehicleResponse vehicle = vehicleService.findByPublicId(publicId);
+		model.addAttribute("form", new VehicleRequest(vehicle.brand(), vehicle.model(), vehicle.color(),
+				vehicle.chassisNumber(), vehicle.manufactureYear()));
 		model.addAttribute("publicId", publicId);
+		model.addAttribute("editMode", true);
 		return "vehicle/form";
 	}
 
 	@PostMapping("/{publicId}/edit")
-	public String update(@PathVariable UUID publicId, @Valid @ModelAttribute VehicleRequest vehicleRequest,
+	public String update(@PathVariable UUID publicId, @Valid @ModelAttribute VehicleRequest form,
 			BindingResult result, RedirectAttributes redirectAttributes) {
 		if (result.hasErrors())
 			return "vehicle/form";
 
-		vehicleService.update(publicId, vehicleRequest);
+		vehicleService.update(publicId, form);
 		redirectAttributes.addFlashAttribute("mensagem", "Veículo actualizado com sucesso");
 		return "redirect:/vehicles";
 	}

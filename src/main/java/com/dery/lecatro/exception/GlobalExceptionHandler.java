@@ -17,37 +17,40 @@ public class GlobalExceptionHandler {
 		log.warn("Resource not found: {}", ex.getMessage(), ex);
 
 		redirectAttributes.addFlashAttribute("erro", ex.getMessage());
-		
+
 		return "redirect:/dashboard";
 	}
 
 	@ExceptionHandler(BusinessException.class)
 	public String handleBusiness(BusinessException ex, RedirectAttributes redirectAttributes) {
-		
+
 		log.warn("Business rule violation: {}", ex.getMessage());
-		
+
 		redirectAttributes.addFlashAttribute("erro", ex.getMessage());
-		
+
 		return "redirect:/dashboard";
 	}
 
 	@ExceptionHandler(DataIntegrityException.class)
 	public String handleDataIntegrityViolation(DataIntegrityException ex, RedirectAttributes redirectAttributes) {
-		
+
 		log.warn("Data integrity violation: {}", ex.getMessage());
-		
+
 		redirectAttributes.addFlashAttribute("erro", ex.getMessage());
-		
+
 		return "redirect:/dashboard";
 	}
 
 	@ExceptionHandler(Exception.class)
 	public String handleGeneric(Exception ex, Model model) {
-
+		// ignora erros de recursos estáticos não encontrados
+		if (ex instanceof org.springframework.web.servlet.resource.NoResourceFoundException) {
+			return "redirect:/dashboard";
+		}
 		log.error("Unexpected error: {}", ex.getMessage(), ex);
-		
+
 		model.addAttribute("erro", "Ocorreu um erro inesperado. Tente novamente.");
-		
+
 		return "error";
 	}
 }

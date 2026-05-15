@@ -28,6 +28,8 @@ public class SecurityConfig {
 				.requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
 
 				.requestMatchers("/login").permitAll()
+				
+				.requestMatchers("/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll()
 
 				.requestMatchers("/users/**").hasRole("ADMIN")
 

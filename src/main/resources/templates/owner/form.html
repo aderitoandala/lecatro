@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout('Proprietário', 'owners',
+<html lang="pt-PT" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout('Proprietário', 'owners',
         ~{::conteudo})}">
 
 <body>
@@ -15,9 +15,8 @@
 		<div class="card border-0 shadow-sm" style="max-width: 600px">
 			<div class="card-body p-4">
 
-				<!-- acção do formulário depende se é criação ou edição -->
-				<form th:action="${owner != null} ? @{/owners/{id}/edit(id=${publicId})} : @{/owners}" method="post"
-					th:object="${ownerRequest != null} ? ${ownerRequest} : ${owner}">
+				<form th:action="${editMode} ? @{/owners/{id}/edit(id=${publicId})} : @{/owners}" method="post"
+					th:object="${form}">
 
 					<div class="mb-3">
 						<label class="form-label">Nome</label>
@@ -35,7 +34,7 @@
 
 					<div class="mb-3">
 						<label class="form-label">NUIT</label>
-						<input type="text" class="form-control" th:field="*{nuit}"
+						<input type="text" class="form-control" th:field="*{nuit}" placeholder="9 algarismos"
 							th:classappend="${#fields.hasErrors('nuit')} ? 'is-invalid'" />
 						<div class="invalid-feedback" th:errors="*{nuit}"></div>
 					</div>
@@ -55,7 +54,7 @@
 					</div>
 
 					<button type="submit" class="btn btn-dark">
-						<span th:text="${owner != null} ? 'Actualizar' : 'Guardar'"></span>
+						<span th:text="${editMode} ? 'Actualizar' : 'Guardar'"></span>
 					</button>
 
 				</form>

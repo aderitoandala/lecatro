@@ -1,17 +1,25 @@
 package com.dery.lecatro.controller;
 
-import com.dery.lecatro.dto.request.UserRequest;
-import com.dery.lecatro.service.UserService;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import java.util.UUID;
+
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.UUID;
+import com.dery.lecatro.dto.request.UserRequest;
+import com.dery.lecatro.dto.request.UserUpdateRequest;
+import com.dery.lecatro.dto.response.UserResponse;
+import com.dery.lecatro.service.UserService;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @Controller
 @RequestMapping("/users")
@@ -29,35 +37,37 @@ public class UserController {
 
 	@GetMapping("/new")
 	public String createForm(Model model) {
-		model.addAttribute("userRequest", new UserRequest(null, null, null, null));
+		model.addAttribute("form", new UserRequest(null, null, null, null));
 		return "user/form";
 	}
 
 	@PostMapping
-	public String create(@Valid @ModelAttribute UserRequest userRequest, BindingResult result,
+	public String create(@Valid @ModelAttribute UserRequest form, BindingResult result,
 			RedirectAttributes redirectAttributes) {
 		if (result.hasErrors())
 			return "user/form";
 
-		userService.create(userRequest);
+		userService.create(form);
 		redirectAttributes.addFlashAttribute("mensagem", "Utilizador criado com sucesso");
 		return "redirect:/users";
 	}
 
 	@GetMapping("/{publicId}/edit")
 	public String editForm(@PathVariable UUID publicId, Model model) {
-		model.addAttribute("user", userService.findByPublicId(publicId));
+		UserResponse user = userService.findByPublicId(publicId);
+		model.addAttribute("form", new UserUpdateRequest(user.email(), null, user.province(), user.role()));
 		model.addAttribute("publicId", publicId);
+		model.addAttribute("editMode", true);
 		return "user/form";
 	}
 
 	@PostMapping("/{publicId}/edit")
-	public String update(@PathVariable UUID publicId, @Valid @ModelAttribute UserRequest userRequest,
+	public String update(@PathVariable UUID publicId, @Valid @ModelAttribute UserUpdateRequest form,
 			BindingResult result, RedirectAttributes redirectAttributes) {
 		if (result.hasErrors())
 			return "user/form";
 
-		userService.update(publicId, userRequest);
+		userService.update(publicId, form);
 		redirectAttributes.addFlashAttribute("mensagem", "Utilizador actualizado com sucesso");
 		return "redirect:/users";
 	}

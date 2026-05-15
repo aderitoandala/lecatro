@@ -9,14 +9,14 @@
 			<a th:href="@{/users}" class="btn btn-sm btn-outline-secondary">
 				<i class="bi bi-arrow-left"></i>
 			</a>
-			<h5 class="mb-0" th:text="${user != null} ? 'Editar Utilizador' : 'Novo Utilizador'"></h5>
+			<h5 class="mb-0" th:text="${editMode} ? 'Editar Utilizador' : 'Novo Utilizador'"></h5>
 		</div>
 
 		<div class="card border-0 shadow-sm" style="max-width: 600px">
 			<div class="card-body p-4">
 
-				<form th:action="${user != null} ? @{/users/{id}/edit(id=${publicId})} : @{/users}" method="post"
-					th:object="${userRequest != null} ? ${userRequest} : ${user}">
+				<form th:action="${editMode} ? @{/users/{id}/edit(id=${publicId})} : @{/users}" method="post"
+					th:object="${form}">
 
 					<div class="mb-3">
 						<label class="form-label">Email</label>
@@ -26,8 +26,14 @@
 					</div>
 
 					<div class="mb-3">
-						<label class="form-label">Senha</label>
-						<input type="password" class="form-control" th:field="*{password}"
+						<label class="form-label">
+							Senha
+							<!-- nota apenas visível em modo edição -->
+							<span th:if="${editMode}" class="text-muted small">
+								(deixe em branco se quiser manter a actual)
+							</span>
+						</label>
+						<input type="password" class="form-control" th:field="*{password}" placeholder="Nova senha"
 							th:classappend="${#fields.hasErrors('password')} ? 'is-invalid'" />
 						<div class="invalid-feedback" th:errors="*{password}"></div>
 					</div>
@@ -37,7 +43,6 @@
 						<select class="form-select" th:field="*{province}"
 							th:classappend="${#fields.hasErrors('province')} ? 'is-invalid'">
 							<option value="">-- Seleccione --</option>
-							<!-- itera sobre os valores do enum Province -->
 							<option th:each="p : ${T(com.dery.lecatro.entity.enums.Province).values()}" th:value="${p}"
 								th:text="${p}">
 							</option>
@@ -50,7 +55,6 @@
 						<select class="form-select" th:field="*{role}"
 							th:classappend="${#fields.hasErrors('role')} ? 'is-invalid'">
 							<option value="">-- Seleccione --</option>
-							<!-- itera sobre os valores do enum Role -->
 							<option th:each="r : ${T(com.dery.lecatro.entity.enums.Role).values()}" th:value="${r}"
 								th:text="${r}">
 							</option>
@@ -59,7 +63,7 @@
 					</div>
 
 					<button type="submit" class="btn btn-dark">
-						<span th:text="${user != null} ? 'Actualizar' : 'Guardar'"></span>
+						<span th:text="${editMode} ? 'Actualizar' : 'Guardar'"></span>
 					</button>
 
 				</form>

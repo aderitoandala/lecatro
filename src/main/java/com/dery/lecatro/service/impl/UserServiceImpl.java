@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.dery.lecatro.dto.request.UserRequest;
+import com.dery.lecatro.dto.request.UserUpdateRequest;
 import com.dery.lecatro.dto.response.UserResponse;
 import com.dery.lecatro.entity.User;
 import com.dery.lecatro.exception.ResourceNotFoundException;
@@ -51,17 +52,20 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	@Transactional
-	public UserResponse update(UUID publicId, UserRequest request) {
+	public UserResponse update(UUID publicId, UserUpdateRequest request) {
+	    User user = userRepository.findByPublicId(publicId)
+	            .orElseThrow(() -> new ResourceNotFoundException("Utilizador não encontrado"));
 
-		User user = userRepository.findByPublicId(publicId)
-				.orElseThrow(() -> new ResourceNotFoundException("Utilizador não encontrado"));
+	    user.setEmail(request.email());
+	    user.setProvince(request.province());
+	    user.setRole(request.role());
 
-		user.setEmail(request.email());
-		user.setPassword(passwordEncoder.encode(request.password()));
-		user.setProvince(request.province());
-		user.setRole(request.role());
+	  
+	    if (request.password() != null && !request.password().isBlank()) {
+	        user.setPassword(passwordEncoder.encode(request.password()));
+	    }
 
-		return userMapper.toResponse(userRepository.save(user));
+	    return userMapper.toResponse(userRepository.save(user));
 	}
 
 	@Override

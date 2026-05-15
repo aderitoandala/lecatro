@@ -14,6 +14,107 @@
 			</a>
 		</div>
 
+		<!-- cartões de estatísticas do ano seleccionado -->
+		<div class="row g-3 mb-4">
+			<div class="col-6 col-md-3">
+				<div class="card border-0 shadow-sm">
+					<div class="card-body">
+						<div class="text-muted small">Total</div>
+						<div class="fs-5 fw-bold" th:text="${stats.totalRequests}">0</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-6 col-md-3">
+				<div class="card border-0 shadow-sm">
+					<div class="card-body">
+						<div class="text-muted small">Pendentes</div>
+						<div class="fs-5 fw-bold text-warning" th:text="${stats.totalPending}">0</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-6 col-md-3">
+				<div class="card border-0 shadow-sm">
+					<div class="card-body">
+						<div class="text-muted small">Emitidos</div>
+						<div class="fs-5 fw-bold text-success" th:text="${stats.totalIssued}">0</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-6 col-md-3">
+				<div class="card border-0 shadow-sm">
+					<div class="card-body">
+						<div class="text-muted small">Cancelados</div>
+						<div class="fs-5 fw-bold text-danger" th:text="${stats.totalCancelled}">0</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- painel de filtros -->
+		<div class="card border-0 shadow-sm mb-4">
+			<div class="card-body">
+				<form th:action="@{/requests}" method="get" class="row g-2 align-items-end">
+
+					<!-- ano -->
+					<div class="col-12 col-md-3">
+						<label class="form-label small text-muted">Ano</label>
+						<select name="year" class="form-select form-select-sm">
+							<option value="">Todos os anos</option>
+							<option th:each="y : ${years}" th:value="${y}" th:text="${y}"
+								th:selected="${y == selectedYear}">
+							</option>
+						</select>
+					</div>
+
+					<!-- mês -->
+					<div class="col-12 col-md-3">
+						<label class="form-label small text-muted">Mês</label>
+						<select name="month" class="form-select form-select-sm">
+							<option value="">Todos os meses</option>
+							<option value="1" th:selected="${selectedMonth == 1}">Janeiro</option>
+							<option value="2" th:selected="${selectedMonth == 2}">Fevereiro</option>
+							<option value="3" th:selected="${selectedMonth == 3}">Março</option>
+							<option value="4" th:selected="${selectedMonth == 4}">Abril</option>
+							<option value="5" th:selected="${selectedMonth == 5}">Maio</option>
+							<option value="6" th:selected="${selectedMonth == 6}">Junho</option>
+							<option value="7" th:selected="${selectedMonth == 7}">Julho</option>
+							<option value="8" th:selected="${selectedMonth == 8}">Agosto</option>
+							<option value="9" th:selected="${selectedMonth == 9}">Setembro</option>
+							<option value="10" th:selected="${selectedMonth == 10}">Outubro</option>
+							<option value="11" th:selected="${selectedMonth == 11}">Novembro</option>
+							<option value="12" th:selected="${selectedMonth == 12}">Dezembro</option>
+						</select>
+					</div>
+
+					<!-- estado -->
+					<div class="col-12 col-md-3">
+						<label class="form-label small text-muted">Estado</label>
+						<select name="status" class="form-select form-select-sm">
+							<option value="">Todos os estados</option>
+							<option value="PENDING" th:selected="${selectedStatus?.name() == 'PENDING'}">Pendente
+							</option>
+							<option value="PAID" th:selected="${selectedStatus?.name() == 'PAID'}">Pago</option>
+							<option value="ISSUED" th:selected="${selectedStatus?.name() == 'ISSUED'}">Emitido</option>
+							<option value="CANCELLED" th:selected="${selectedStatus?.name() == 'CANCELLED'}">Cancelado
+							</option>
+						</select>
+					</div>
+
+					<!-- botões -->
+					<div class="col-12 col-md-3 d-flex gap-2">
+						<button type="submit" class="btn btn-sm btn-dark w-100">
+							<i class="bi bi-funnel me-1"></i> Filtrar
+						</button>
+						<a th:href="@{/requests}" class="btn btn-sm btn-outline-secondary w-100">
+							<i class="bi bi-x-lg me-1"></i> Limpar
+						</a>
+					</div>
+
+				</form>
+			</div>
+		</div>
+
+		<!-- tabela de resultados -->
 		<div class="card border-0 shadow-sm">
 			<div class="table-responsive">
 				<table class="table table-hover mb-0">
@@ -33,7 +134,6 @@
 							<td th:text="${request.vehicle.brand + ' ' + request.vehicle.model}"></td>
 							<td th:text="${request.user.email}"></td>
 							<td>
-								<!-- badge de cor por estado -->
 								<span class="badge" th:classappend="${request.status.name() == 'PENDING'}   ? 'bg-warning text-dark' :
                                                   (${request.status.name() == 'PAID'}     ? 'bg-info text-dark'    :
                                                   (${request.status.name() == 'ISSUED'}   ? 'bg-success'           :
@@ -43,12 +143,10 @@
 							</td>
 							<td th:text="${#temporals.format(request.createdAt, 'dd/MM/yyyy')}"></td>
 							<td>
-								<!-- detalhe -->
 								<a th:href="@{/requests/{id}(id=${request.publicId})}"
 									class="btn btn-sm btn-outline-secondary me-1">
 									<i class="bi bi-eye"></i>
 								</a>
-								<!-- cancelar — apenas se não estiver emitido -->
 								<form
 									th:if="${request.status.name() != 'ISSUED' and request.status.name() != 'CANCELLED'}"
 									th:action="@{/requests/{id}/cancel(id=${request.publicId})}" method="post"
@@ -62,12 +160,18 @@
 						</tr>
 						<tr th:if="${#lists.isEmpty(requests)}">
 							<td colspan="6" class="text-center text-muted py-4">
-								Nenhum pedido registado.
+								Nenhum pedido encontrado para os filtros seleccionados.
 							</td>
 						</tr>
 					</tbody>
 				</table>
 			</div>
+
+			<!-- rodapé com total de resultados -->
+			<div th:if="${!#lists.isEmpty(requests)}" class="card-footer text-muted small text-end">
+				<span th:text="${#lists.size(requests)} + ' resultado(s) encontrado(s)'"></span>
+			</div>
+
 		</div>
 
 	</th:block>

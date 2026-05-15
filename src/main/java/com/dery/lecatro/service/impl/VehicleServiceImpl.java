@@ -1,5 +1,6 @@
 package com.dery.lecatro.service.impl;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -9,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.dery.lecatro.dto.request.VehicleRequest;
 import com.dery.lecatro.dto.response.VehicleResponse;
 import com.dery.lecatro.entity.Vehicle;
+import com.dery.lecatro.exception.BusinessException;
 import com.dery.lecatro.exception.DataIntegrityException;
 import com.dery.lecatro.exception.ResourceNotFoundException;
 import com.dery.lecatro.mapper.VehicleMapper;
@@ -27,6 +29,12 @@ public class VehicleServiceImpl implements VehicleService {
 	@Override
 	@Transactional
 	public VehicleResponse create(VehicleRequest request) {
+
+		int currentYear = LocalDate.now().getYear();
+
+		if (request.manufactureYear() > currentYear) {
+			throw new BusinessException("O ano de fabrico não pode ser superior ao ano actual (" + currentYear + ")");
+		}
 
 		if (vehicleRepository.existsByChassisNumber(request.chassisNumber())) {
 			throw new DataIntegrityException("Já existe um veículo com este número de chassis");
@@ -52,8 +60,15 @@ public class VehicleServiceImpl implements VehicleService {
 	@Override
 	@Transactional
 	public VehicleResponse update(UUID publicId, VehicleRequest request) {
+
+		int currentYear = LocalDate.now().getYear();
+
 		Vehicle vehicle = vehicleRepository.findByPublicId(publicId)
 				.orElseThrow(() -> new ResourceNotFoundException("Veículo não encontrado"));
+
+		if (request.manufactureYear() > currentYear) {
+			throw new BusinessException("O ano de fabrico não pode ser superior ao ano actual (" + currentYear + ")");
+		}
 
 		vehicle.setBrand(request.brand());
 		vehicle.setModel(request.model());

@@ -28,16 +28,17 @@ public class SecurityConfig {
 				.requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
 
 				.requestMatchers("/login").permitAll()
-				
+
 				.requestMatchers("/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll()
 
 				.requestMatchers("/users/**").hasRole("ADMIN")
 
 				.anyRequest().authenticated())
 
-				.formLogin(form -> form.loginPage("/login").loginProcessingUrl("/login")
+				.formLogin(form -> form.loginPage("/login").loginProcessingUrl("/login").usernameParameter("email")
+						.defaultSuccessUrl("/dashboard", true).failureUrl("/login?erro").permitAll()
 
-						.defaultSuccessUrl("/dashboard", true).failureUrl("/login?erro").permitAll())
+				)
 				.logout(logout -> logout.logoutUrl("/logout").logoutSuccessUrl("/login?logout")
 						.invalidateHttpSession(true).deleteCookies("JSESSIONID").permitAll())
 				.userDetailsService(userDetailsService);

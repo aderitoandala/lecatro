@@ -1,17 +1,21 @@
 package com.dery.lecatro.repository;
 
-import com.dery.lecatro.entity.LicensePlate;
-import com.dery.lecatro.entity.enums.LicensePlateStatus;
-import org.springframework.data.jpa.repository.JpaRepository;
-
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.dery.lecatro.entity.LicensePlate;
+import com.dery.lecatro.entity.enums.LicensePlateStatus;
 
 public interface LicensePlateRepository extends JpaRepository<LicensePlate, Long> {
 
 	Optional<LicensePlate> findByNumber(String number);
 
 	Optional<LicensePlate> findByPublicId(UUID publicId);
+	
+	List<LicensePlate> findByStatus(LicensePlateStatus status);
 
 	boolean existsByRequestVehicleIdAndStatus(Long vehicleId, LicensePlateStatus status);
 

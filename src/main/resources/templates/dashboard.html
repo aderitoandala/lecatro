@@ -1,21 +1,20 @@
 <!DOCTYPE html>
-<!-- layout base injectado via th:replace -->
-<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: layout('Dashboard', 'dashboard',
-        ~{::conteudo})}">
+<html xmlns:th="http://www.thymeleaf.org"
+	th:replace="~{fragments/layout :: layout('Dashboard', 'dashboard', ~{::conteudo})}">
 
 <body>
 	<th:block th:fragment="conteudo">
 
 		<h5 class="mb-4">Dashboard</h5>
 
-		<!-- cartões de resumo — dados a adicionar nos services mais tarde -->
 		<div class="row g-3">
 
 			<div class="col-md-3">
 				<div class="card border-0 shadow-sm">
 					<div class="card-body">
 						<div class="text-muted small">Pedidos Pendentes</div>
-						<div class="fs-4 fw-bold text-warning">—</div>
+						<!-- valor real vindo do controller -->
+						<div class="fs-4 fw-bold text-warning" th:text="${totalPending}">0</div>
 					</div>
 				</div>
 			</div>
@@ -24,7 +23,7 @@
 				<div class="card border-0 shadow-sm">
 					<div class="card-body">
 						<div class="text-muted small">Matrículas Emitidas</div>
-						<div class="fs-4 fw-bold text-success">—</div>
+						<div class="fs-4 fw-bold text-success" th:text="${totalIssued}">0</div>
 					</div>
 				</div>
 			</div>
@@ -33,7 +32,7 @@
 				<div class="card border-0 shadow-sm">
 					<div class="card-body">
 						<div class="text-muted small">Proprietários</div>
-						<div class="fs-4 fw-bold text-primary">—</div>
+						<div class="fs-4 fw-bold text-primary" th:text="${totalOwners}">0</div>
 					</div>
 				</div>
 			</div>
@@ -42,7 +41,7 @@
 				<div class="card border-0 shadow-sm">
 					<div class="card-body">
 						<div class="text-muted small">Veículos</div>
-						<div class="fs-4 fw-bold text-info">—</div>
+						<div class="fs-4 fw-bold text-info" th:text="${totalVehicles}">0</div>
 					</div>
 				</div>
 			</div>

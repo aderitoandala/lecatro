@@ -1,9 +1,11 @@
 package com.dery.lecatro.dto.request;
 
+import java.time.LocalDate;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import java.time.LocalDate;
+import jakarta.validation.constraints.Pattern;
 
 public record OwnerRequest(
 
@@ -14,6 +16,7 @@ public record OwnerRequest(
     String lastName,
 
     @NotBlank(message = "O NUIT é obrigatório")
+    @Pattern(regexp = "\\d{9}", message = "O NUIT deve conter exactamente 9 algarismos")
     String nuit,
 
     @NotBlank(message = "O email é obrigatório")

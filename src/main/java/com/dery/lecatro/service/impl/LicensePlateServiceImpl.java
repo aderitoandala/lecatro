@@ -1,6 +1,7 @@
 package com.dery.lecatro.service.impl;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -31,7 +32,7 @@ public class LicensePlateServiceImpl implements LicensePlateService {
 	private final LicensePlateRepository licensePlateRepository;
 	private final RequestRepository requestRepository;
 	private final LicensePlateMapper licensePlateMapper;
-	private final LicensePlateGenerator licensePlateGenerator; 
+	private final LicensePlateGenerator licensePlateGenerator;
 	private final HistoryService historyService;
 	private final EmailService emailService;
 
@@ -55,7 +56,7 @@ public class LicensePlateServiceImpl implements LicensePlateService {
 		// gera o número da matrícula
 		String number = licensePlateGenerator.generate(request.getUser().getProvince());
 
-		//cria a matricula
+		// cria a matricula
 		LicensePlate licensePlate = LicensePlate.builder().request(request).number(number).issueDate(LocalDate.now())
 				.status(LicensePlateStatus.ACTIVE).build();
 
@@ -67,14 +68,10 @@ public class LicensePlateServiceImpl implements LicensePlateService {
 
 		// regista emissão no histórico
 		historyService.record(request.getPublicId(), HistoryEvent.REGISTRATION, "Matrícula emitida: " + number);
-		
+
 		// notifica o proprietário que a matrícula foi emitida
-		emailService.sendRequestStatusNotification(
-		    request.getOwner().getEmail(),
-		    request.getOwner().getFirstName(),
-		    request.getPublicId().toString(),
-		    RequestStatus.ISSUED
-		);
+		emailService.sendRequestStatusNotification(request.getOwner().getEmail(), request.getOwner().getFirstName(),
+				request.getPublicId().toString(), RequestStatus.ISSUED);
 
 		return licensePlateMapper.toResponse(saved);
 	}
@@ -84,6 +81,12 @@ public class LicensePlateServiceImpl implements LicensePlateService {
 	public LicensePlateResponse findByNumber(String number) {
 		return licensePlateRepository.findByNumber(number).map(licensePlateMapper::toResponse)
 				.orElseThrow(() -> new ResourceNotFoundException("Matrícula não encontrada"));
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<LicensePlateResponse> findByStatus(LicensePlateStatus status) {
+		return licensePlateRepository.findByStatus(status).stream().map(licensePlateMapper::toResponse).toList();
 	}
 
 	@Override

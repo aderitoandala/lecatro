@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.dery.lecatro.dto.request.RequestRequest;
 import com.dery.lecatro.dto.response.RequestResponse;
+import com.dery.lecatro.dto.response.RequestStatsResponse;
 import com.dery.lecatro.entity.Owner;
 import com.dery.lecatro.entity.Request;
 import com.dery.lecatro.entity.User;
@@ -74,6 +75,38 @@ public class RequestServiceImpl implements RequestService {
 	@Transactional(readOnly = true)
 	public List<RequestResponse> findAll() {
 		return requestRepository.findAll().stream().map(requestMapper::toResponse).toList();
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<RequestResponse> findWithFilters(Integer year, Integer month, RequestStatus status) {
+		List<Request> requests;
+
+		// aplica os filtros disponíveis — todos são opcionais
+		if (year != null && month != null) {
+			requests = requestRepository.findByYearAndMonth(year, month);
+		} else if (year != null) {
+			requests = requestRepository.findByYear(year);
+		} else {
+			requests = requestRepository.findAll();
+		}
+
+		// filtra por estado se fornecido
+		return requests.stream().filter(r -> status == null || r.getStatus() == status).map(requestMapper::toResponse)
+				.toList();
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public RequestStatsResponse getStatsByYear(int year) {
+		List<Request> requests = requestRepository.findByYear(year);
+
+		// agrega as contagens por estado
+		return new RequestStatsResponse(year, null, requests.size(),
+				requests.stream().filter(r -> r.getStatus() == RequestStatus.PENDING).count(),
+				requests.stream().filter(r -> r.getStatus() == RequestStatus.PAID).count(),
+				requests.stream().filter(r -> r.getStatus() == RequestStatus.ISSUED).count(),
+				requests.stream().filter(r -> r.getStatus() == RequestStatus.CANCELLED).count());
 	}
 
 	@Override

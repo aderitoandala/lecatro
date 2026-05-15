@@ -13,7 +13,6 @@ import com.dery.lecatro.entity.enums.HistoryEvent;
 import com.dery.lecatro.entity.enums.LicensePlateStatus;
 import com.dery.lecatro.entity.enums.RequestStatus;
 import com.dery.lecatro.exception.BusinessException;
-import com.dery.lecatro.exception.DataIntegrityException;
 import com.dery.lecatro.exception.ResourceNotFoundException;
 import com.dery.lecatro.mapper.LicensePlateMapper;
 import com.dery.lecatro.repository.LicensePlateRepository;
@@ -50,7 +49,7 @@ public class LicensePlateServiceImpl implements LicensePlateService {
 		// O veículo não pode ter matrícula activa
 		if (licensePlateRepository.existsByRequestVehicleIdAndStatus(request.getVehicle().getId(),
 				LicensePlateStatus.ACTIVE)) {
-			throw new DataIntegrityException("Este veículo já tem uma matrícula activa");
+			throw new BusinessException("Este veículo já tem uma matrícula activa");
 		}
 
 		// gera o número da matrícula

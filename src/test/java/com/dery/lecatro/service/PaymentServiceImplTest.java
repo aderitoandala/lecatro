@@ -76,8 +76,8 @@ class PaymentServiceImplTest {
 
 		paymentRequest = new PaymentRequest(requestPublicId, new BigDecimal("6500.00"), PaymentMethod.MPESA);
 
-		paymentResponse = new PaymentResponse(paymentPublicId, new BigDecimal("6500.00"), PaymentMethod.MPESA,
-				PaymentStatus.PENDING);
+		paymentResponse = new PaymentResponse(paymentPublicId, requestPublicId, new BigDecimal("6500.00"),
+				PaymentMethod.MPESA, PaymentStatus.PENDING);
 	}
 
 	@Test

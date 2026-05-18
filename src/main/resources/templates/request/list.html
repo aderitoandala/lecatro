@@ -138,7 +138,7 @@
                                                   (${request.status.name() == 'PAID'}     ? 'bg-info text-dark'    :
                                                   (${request.status.name() == 'ISSUED'}   ? 'bg-success'           :
                                                                                              'bg-danger'))"
-									th:text="${request.status}">
+									th:text="${request.status.label}">
 								</span>
 							</td>
 							<td th:text="${#temporals.format(request.createdAt, 'dd/MM/yyyy')}"></td>

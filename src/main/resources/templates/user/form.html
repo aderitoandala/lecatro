@@ -44,7 +44,7 @@
 							th:classappend="${#fields.hasErrors('province')} ? 'is-invalid'">
 							<option value="">-- Seleccione --</option>
 							<option th:each="p : ${T(com.dery.lecatro.entity.enums.Province).values()}" th:value="${p}"
-								th:text="${p}">
+								th:text="${p.label}">
 							</option>
 						</select>
 						<div class="invalid-feedback" th:errors="*{province}"></div>
@@ -56,7 +56,7 @@
 							th:classappend="${#fields.hasErrors('role')} ? 'is-invalid'">
 							<option value="">-- Seleccione --</option>
 							<option th:each="r : ${T(com.dery.lecatro.entity.enums.Role).values()}" th:value="${r}"
-								th:text="${r}">
+								th:text="${r.label}">
 							</option>
 						</select>
 						<div class="invalid-feedback" th:errors="*{role}"></div>

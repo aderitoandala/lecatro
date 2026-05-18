@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.dery.lecatro.dto.request.PaymentRequest;
+import com.dery.lecatro.dto.response.PaymentResponse;
 import com.dery.lecatro.service.PaymentService;
 import com.dery.lecatro.service.RequestService;
 
@@ -48,15 +49,17 @@ public class PaymentController {
 
 	@PostMapping("/{publicId}/confirm")
 	public String confirm(@PathVariable UUID publicId, RedirectAttributes redirectAttributes) {
-		paymentService.confirm(publicId);
+		PaymentResponse payment = paymentService.confirm(publicId);
 		redirectAttributes.addFlashAttribute("mensagem", "Pagamento confirmado com sucesso");
-		return "redirect:/requests";
+		// redireciona para o detalhe do pedido
+		return "redirect:/requests/" + payment.requestPublicId();
 	}
 
 	@PostMapping("/{publicId}/reject")
 	public String reject(@PathVariable UUID publicId, RedirectAttributes redirectAttributes) {
-		paymentService.reject(publicId);
-		redirectAttributes.addFlashAttribute("mensagem", "Pagamento rejeitado");
-		return "redirect:/requests";
+		PaymentResponse payment = paymentService.reject(publicId);
+		redirectAttributes.addFlashAttribute("erro", "Pagamento rejeitado");
+		return "redirect:/requests/" + payment.requestPublicId();
 	}
+
 }

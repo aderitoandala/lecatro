@@ -29,7 +29,7 @@
                                                   (${request.status.name() == 'PAID'}     ? 'bg-info text-dark'    :
                                                   (${request.status.name() == 'ISSUED'}   ? 'bg-success'           :
                                                                                              'bg-danger'))"
-									th:text="${request.status}">
+									th:text="${request.status.label}">
 								</span>
 							</div>
 						</div>
@@ -65,7 +65,57 @@
 				</div>
 			</div>
 
-			<!-- acções disponíveis por estado -->
+			<!-- informação do pagamento — visível quando existe -->
+			<div class="col-12" th:if="${payment != null}">
+				<div class="card border-0 shadow-sm">
+					<div class="card-body p-4">
+						<h6 class="card-title mb-3">Pagamento</h6>
+
+						<div class="row g-3">
+							<div class="col-md-3">
+								<span class="text-muted small">Valor</span>
+								<div class="fw-bold" th:text="${#numbers.formatDecimal(payment.amount, 1, 2)} + ' MZN'">
+								</div>
+							</div>
+							<div class="col-md-3">
+								<span class="text-muted small">Método</span>
+								<div th:text="${payment.method.label}"></div>
+							</div>
+							<div class="col-md-3">
+								<span class="text-muted small">Estado</span>
+								<div>
+									<span class="badge" th:classappend="${payment.status.name() == 'PENDING'}   ? 'bg-warning text-dark' :
+                                                      (${payment.status.name() == 'CONFIRMED'} ? 'bg-success' :
+                                                                                                  'bg-danger')"
+										th:text="${payment.status.label}">
+									</span>
+								</div>
+							</div>
+						</div>
+
+						<!-- confirmar ou rejeitar — apenas se PENDING -->
+						<div class="d-flex gap-2 mt-3" th:if="${payment.status.name() == 'PENDING'}">
+
+							<form th:action="@{/payments/{id}/confirm(id=${payment.publicId})}" method="post">
+								<button type="submit" class="btn btn-sm btn-success"
+									onclick="return confirm('Confirma o pagamento?')">
+									<i class="bi bi-check-lg me-1"></i> Confirmar Pagamento
+								</button>
+							</form>
+
+							<form th:action="@{/payments/{id}/reject(id=${payment.publicId})}" method="post">
+								<button type="submit" class="btn btn-sm btn-outline-danger"
+									onclick="return confirm('Confirma a rejeição do pagamento?')">
+									<i class="bi bi-x-lg me-1"></i> Rejeitar
+								</button>
+							</form>
+
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- acções do pedido -->
 			<div class="col-12">
 				<div class="card border-0 shadow-sm">
 					<div class="card-body p-4">
@@ -73,8 +123,8 @@
 
 						<div class="d-flex gap-2">
 
-							<!-- registar pagamento — apenas se PENDING -->
-							<a th:if="${request.status.name() == 'PENDING'}"
+							<!-- registar pagamento — apenas se PENDING e sem pagamento -->
+							<a th:if="${request.status.name() == 'PENDING' and payment == null}"
 								th:href="@{/payments/new/{id}(id=${request.publicId})}" class="btn btn-sm btn-dark">
 								<i class="bi bi-cash me-1"></i> Registar Pagamento
 							</a>

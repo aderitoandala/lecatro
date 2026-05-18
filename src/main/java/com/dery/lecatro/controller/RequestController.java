@@ -18,8 +18,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.dery.lecatro.dto.request.RequestRequest;
+import com.dery.lecatro.dto.response.RequestResponse;
 import com.dery.lecatro.entity.enums.RequestStatus;
+import com.dery.lecatro.exception.ResourceNotFoundException;
 import com.dery.lecatro.service.OwnerService;
+import com.dery.lecatro.service.PaymentService;
 import com.dery.lecatro.service.RequestService;
 import com.dery.lecatro.service.VehicleService;
 
@@ -34,6 +37,7 @@ public class RequestController {
 	private final RequestService requestService;
 	private final OwnerService ownerService;
 	private final VehicleService vehicleService;
+	private final PaymentService paymentService;
 
 	@GetMapping
 	public String list(@RequestParam(required = false) Integer year, @RequestParam(required = false) Integer month,
@@ -78,7 +82,16 @@ public class RequestController {
 
 	@GetMapping("/{publicId}")
 	public String detail(@PathVariable UUID publicId, Model model) {
-		model.addAttribute("request", requestService.findByPublicId(publicId));
+		RequestResponse request = requestService.findByPublicId(publicId);
+		model.addAttribute("request", request);
+
+		// carrega o pagamento associado se existir
+		try {
+			model.addAttribute("payment", paymentService.findByRequest(publicId));
+		} catch (ResourceNotFoundException e) {
+			model.addAttribute("payment", null); // sem pagamento ainda
+		}
+
 		return "request/detail";
 	}
 

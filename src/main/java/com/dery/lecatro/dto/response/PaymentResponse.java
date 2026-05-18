@@ -5,5 +5,6 @@ import com.dery.lecatro.entity.enums.PaymentStatus;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-public record PaymentResponse(UUID publicId, BigDecimal amount, PaymentMethod method, PaymentStatus status) {
+public record PaymentResponse(UUID publicId, UUID requestPublicId, BigDecimal amount, PaymentMethod method,
+		PaymentStatus status) {
 }

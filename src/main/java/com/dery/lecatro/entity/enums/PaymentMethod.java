@@ -1,6 +1,15 @@
 package com.dery.lecatro.entity.enums;
 
-public enum PaymentMethod {
+public enum PaymentMethod {	
+	BANK_TRANSFER("Transferência Bancária"), MPESA("M-Pesa"), EMOLA("e-Mola");
 
-	BANK_TRANSFER, MPESA, EMOLA
+	private final String label;
+
+	PaymentMethod(String label) {
+		this.label = label;
+	}
+
+	public String getLabel() {
+		return label;
+	}
 }

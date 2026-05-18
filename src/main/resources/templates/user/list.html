@@ -28,11 +28,11 @@
 					<tbody>
 						<tr th:each="user : ${users}">
 							<td th:text="${user.email}"></td>
-							<td th:text="${user.province}"></td>
+							<td th:text="${user.province.label}"></td>
 							<td>
 								<span class="badge"
 									th:classappend="${user.role.name() == 'ADMIN'} ? 'bg-dark' : 'bg-secondary'"
-									th:text="${user.role}">
+									th:text="${user.role.label}">
 								</span>
 							</td>
 							<td>

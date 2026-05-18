@@ -41,7 +41,7 @@ public class History {
 	private Request request;
 
 	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
+	@Column(name = "history_event", nullable = false) 
 	private HistoryEvent event;
 
 	@Column(name = "event_description", nullable = false)

@@ -1,5 +1,6 @@
 package com.dery.lecatro.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -26,4 +27,8 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
 
 	@Query("SELECT r FROM Request r WHERE YEAR(r.createdAt) = :year AND MONTH(r.createdAt) = :month")
 	List<Request> findByYearAndMonth(@Param("year") int year, @Param("month") int month);
+
+	List<Request> findByStatusIn(List<RequestStatus> statuses);
+	
+	List<Request> findByCreatedAtBetween(LocalDateTime startOfDay, LocalDateTime endOfDay);
 }

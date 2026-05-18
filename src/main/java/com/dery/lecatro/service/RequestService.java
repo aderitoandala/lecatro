@@ -25,4 +25,10 @@ public interface RequestService {
 	List<RequestResponse> findWithFilters(Integer year, Integer month, RequestStatus status);
 
 	RequestStatsResponse getStatsByYear(int year);
+	
+
+	List<RequestResponse> findToday();
+
+	//PENDING ou PAID
+	List<RequestResponse> findAwaitingAction();
 }

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.dery.lecatro.entity.LicensePlate;
@@ -14,11 +15,13 @@ public interface LicensePlateRepository extends JpaRepository<LicensePlate, Long
 	Optional<LicensePlate> findByNumber(String number);
 
 	Optional<LicensePlate> findByPublicId(UUID publicId);
-	
+
 	List<LicensePlate> findByStatus(LicensePlateStatus status);
 
 	boolean existsByRequestVehicleIdAndStatus(Long vehicleId, LicensePlateStatus status);
 
 	boolean existsByNumber(String number);
+
+	List<LicensePlate> findBy(Pageable pageable);
 
 }

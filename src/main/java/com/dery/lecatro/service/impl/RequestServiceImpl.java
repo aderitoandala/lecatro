@@ -1,5 +1,8 @@
 package com.dery.lecatro.service.impl;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -153,4 +156,25 @@ public class RequestServiceImpl implements RequestService {
 
 		return requestMapper.toResponse(saved);
 	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<RequestResponse> findToday() {
+		LocalDate today = LocalDate.now();
+		// Define o início do dia (00:00:00) e o fim do dia (23:59:59)
+		LocalDateTime start = today.atStartOfDay();
+		LocalDateTime end = today.atTime(LocalTime.MAX);
+
+		return requestRepository.findByCreatedAtBetween(start, end).stream().map(requestMapper::toResponse).toList();
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<RequestResponse> findAwaitingAction() {
+
+		List<RequestStatus> activeStatuses = List.of(RequestStatus.PENDING, RequestStatus.PAID);
+
+		return requestRepository.findByStatusIn(activeStatuses).stream().map(requestMapper::toResponse).toList();
+	}
+
 }

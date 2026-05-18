@@ -4,6 +4,9 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -103,5 +106,14 @@ public class LicensePlateServiceImpl implements LicensePlateService {
 				"Matrícula cancelada: " + saved.getNumber());
 
 		return licensePlateMapper.toResponse(saved);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<LicensePlateResponse> findRecent(int limit) {
+		
+		Pageable pageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "issueDate"));
+
+		return licensePlateRepository.findBy(pageable).stream().map(licensePlateMapper::toResponse).toList();
 	}
 }

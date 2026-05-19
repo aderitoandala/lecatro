@@ -93,6 +93,13 @@ public class LicensePlateServiceImpl implements LicensePlateService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
+	public LicensePlateResponse findByRequestPublicId(UUID requestPublicId) {
+		return licensePlateRepository.findByRequestPublicId(requestPublicId).map(licensePlateMapper::toResponse)
+				.orElseThrow(() -> new ResourceNotFoundException("Matrícula não encontrada"));
+	}
+
+	@Override
 	@Transactional
 	public LicensePlateResponse cancel(UUID publicId) {
 		LicensePlate licensePlate = licensePlateRepository.findByPublicId(publicId)
@@ -111,9 +118,16 @@ public class LicensePlateServiceImpl implements LicensePlateService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<LicensePlateResponse> findRecent(int limit) {
-		
+
 		Pageable pageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "issueDate"));
 
 		return licensePlateRepository.findBy(pageable).stream().map(licensePlateMapper::toResponse).toList();
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public LicensePlateResponse findByPublicId(UUID publicId) {
+		return licensePlateMapper.toResponse(licensePlateRepository.findByPublicId(publicId)
+				.orElseThrow(() -> new ResourceNotFoundException("Matrícula não encontrada")));
 	}
 }

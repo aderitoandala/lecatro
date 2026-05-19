@@ -1,5 +1,6 @@
 package com.dery.lecatro.controller;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Controller;
@@ -14,9 +15,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.dery.lecatro.dto.request.VehicleRequest;
 import com.dery.lecatro.dto.response.VehicleResponse;
-import com.dery.lecatro.entity.Vehicle;
 import com.dery.lecatro.service.VehicleService;
+import com.dery.lecatro.util.PdfGenerator;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -26,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 public class VehicleController {
 
 	private final VehicleService vehicleService;
+	private final PdfGenerator pdfGenerator;
 
 	@GetMapping
 	public String list(Model model) {
@@ -62,8 +65,8 @@ public class VehicleController {
 	}
 
 	@PostMapping("/{publicId}/edit")
-	public String update(@PathVariable UUID publicId, @Valid @ModelAttribute VehicleRequest form,
-			BindingResult result, RedirectAttributes redirectAttributes) {
+	public String update(@PathVariable UUID publicId, @Valid @ModelAttribute VehicleRequest form, BindingResult result,
+			RedirectAttributes redirectAttributes) {
 		if (result.hasErrors())
 			return "vehicle/form";
 
@@ -77,5 +80,16 @@ public class VehicleController {
 		vehicleService.delete(publicId);
 		redirectAttributes.addFlashAttribute("mensagem", "Veículo removido com sucesso");
 		return "redirect:/vehicles";
+	}
+
+	@GetMapping("/pdf")
+	public void exportPdf(HttpServletResponse response) throws Exception {
+		response.setContentType("application/pdf");
+		response.setHeader("Content-Disposition", "attachment; filename=veiculos.pdf");
+
+		List<String[]> rows = vehicleService.findAll().stream().map(v -> new String[] { v.brand(), v.model(), v.color(),
+				v.chassisNumber(), String.valueOf(v.manufactureYear()) }).toList();
+
+		pdfGenerator.generateVehicles(rows, response.getOutputStream());
 	}
 }

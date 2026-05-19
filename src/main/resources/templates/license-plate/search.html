@@ -5,7 +5,12 @@
 <body>
 	<th:block th:fragment="conteudo">
 
-		<h5 class="mb-4">Matrículas</h5>
+		<div class="d-flex justify-content-between align-items-center mb-4">
+			<h5 class="mb-0">Matrículas</h5>
+			<a th:href="@{/license-plates/pdf}" class="btn btn-sm btn-outline-dark">
+				<i class="bi bi-file-earmark-pdf me-1"></i> Exportar PDF
+			</a>
+		</div>
 
 		<!-- formulário de pesquisa -->
 		<div class="card border-0 shadow-sm mb-4">
@@ -90,9 +95,13 @@
 								</span>
 							</td>
 							<td>
-								<form th:if="${plate.status.name() == 'ACTIVE'}"
-									th:action="@{/license-plates/{id}/cancel(id=${plate.publicId})}" method="post"
-									class="d-inline">
+								<a th:href="@{/license-plates/{id}/certificate(id=${plate.publicId})}" class="btn btn-sm btn-outline-secondary me-1"
+									title="Imprimir Certificado">
+									<i class="bi bi-award"></i>
+								</a>
+							
+								<form th:if="${plate.status.name() == 'ACTIVE'}" th:action="@{/license-plates/{id}/cancel(id=${plate.publicId})}"
+									method="post" class="d-inline">
 									<button type="submit" class="btn btn-sm btn-outline-danger"
 										onclick="return confirm('Confirma o cancelamento?')">
 										<i class="bi bi-x-lg"></i>

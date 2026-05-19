@@ -144,6 +144,13 @@
 								<i class="bi bi-clock-history me-1"></i> Ver Histórico
 							</a>
 
+							<!-- certificado — apenas se ISSUED -->
+							<a th:if="${request.status.name() == 'ISSUED'}"
+								th:href="@{/license-plates/{id}/certificate(id=${licensePlate.publicId})}"
+								class="btn btn-sm btn-outline-dark" target="_blank">
+								<i class="bi bi-award me-1"></i> Certificado
+							</a>
+
 							<!-- cancelar — apenas se PENDING ou PAID -->
 							<form th:if="${request.status.name() == 'PENDING' or request.status.name() == 'PAID'}"
 								th:action="@{/requests/{id}/cancel(id=${request.publicId})}" method="post">

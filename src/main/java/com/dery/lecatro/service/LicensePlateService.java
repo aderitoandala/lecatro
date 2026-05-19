@@ -17,4 +17,8 @@ public interface LicensePlateService {
 	LicensePlateResponse cancel(UUID publicId);
 
 	List<LicensePlateResponse> findRecent(int limit);
+
+	LicensePlateResponse findByPublicId(UUID publicId);
+
+	LicensePlateResponse findByRequestPublicId(UUID requestPublicId);
 }

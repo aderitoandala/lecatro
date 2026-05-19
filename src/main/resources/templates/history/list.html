@@ -9,6 +9,9 @@
 			<a th:href="@{/requests/{id}(id=${request.publicId})}" class="btn btn-sm btn-outline-secondary">
 				<i class="bi bi-arrow-left"></i>
 			</a>
+			<a th:href="@{/history/{id}/pdf(id=${request.publicId})}" class="btn btn-sm btn-outline-dark">
+				<i class="bi bi-file-earmark-pdf me-1"></i> Exportar PDF
+			</a>
 			<h5 class="mb-0">Histórico do Pedido</h5>
 		</div>
 

@@ -24,4 +24,6 @@ public interface LicensePlateRepository extends JpaRepository<LicensePlate, Long
 
 	List<LicensePlate> findBy(Pageable pageable);
 
+	Optional<LicensePlate> findByRequestPublicId(UUID requestPublicId);
+
 }

@@ -1,5 +1,7 @@
 package com.dery.lecatro.controller;
 
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Controller;
@@ -15,7 +17,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.dery.lecatro.dto.request.OwnerRequest;
 import com.dery.lecatro.dto.response.OwnerResponse;
 import com.dery.lecatro.service.OwnerService;
+import com.dery.lecatro.util.PdfGenerator;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -25,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 public class OwnerController {
 
 	private final OwnerService ownerService;
+	private final PdfGenerator pdfGenerator;
 
 	@GetMapping
 	public String list(Model model) {
@@ -75,5 +80,18 @@ public class OwnerController {
 		ownerService.delete(publicId);
 		redirectAttributes.addFlashAttribute("mensagem", "Proprietário removido com sucesso");
 		return "redirect:/owners";
+	}
+
+	@GetMapping("/pdf")
+	public void exportPdf(HttpServletResponse response) throws Exception {
+		response.setContentType("application/pdf");
+		response.setHeader("Content-Disposition", "attachment; filename=proprietarios.pdf");
+
+		List<String[]> rows = ownerService.findAll().stream()
+				.map(o -> new String[] { o.firstName() + " " + o.lastName(), o.nuit(), o.email(),
+						o.birthDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) })
+				.toList();
+
+		pdfGenerator.generateOwners(rows, response.getOutputStream());
 	}
 }

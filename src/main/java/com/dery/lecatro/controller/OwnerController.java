@@ -16,6 +16,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.dery.lecatro.dto.request.OwnerRequest;
 import com.dery.lecatro.dto.response.OwnerResponse;
+import com.dery.lecatro.exception.DataIntegrityException;
 import com.dery.lecatro.service.OwnerService;
 import com.dery.lecatro.util.PdfGenerator;
 
@@ -56,7 +57,6 @@ public class OwnerController {
 	@GetMapping("/{publicId}/edit")
 	public String editForm(@PathVariable UUID publicId, Model model) {
 		OwnerResponse owner = ownerService.findByPublicId(publicId);
-
 		model.addAttribute("form",
 				new OwnerRequest(owner.firstName(), owner.lastName(), owner.nuit(), owner.email(), owner.birthDate()));
 		model.addAttribute("publicId", publicId);
@@ -67,18 +67,30 @@ public class OwnerController {
 	@PostMapping("/{publicId}/edit")
 	public String update(@PathVariable UUID publicId, @Valid @ModelAttribute OwnerRequest form, BindingResult result,
 			RedirectAttributes redirectAttributes) {
-		if (result.hasErrors()) {
+		if (result.hasErrors())
 			return "owner/form";
+
+		try {
+			ownerService.update(publicId, form);
+			redirectAttributes.addFlashAttribute("mensagem", "Proprietário actualizado com sucesso");
+			return "redirect:/owners";
+		} catch (DataIntegrityException e) {
+
+			redirectAttributes.addFlashAttribute("erro", e.getMessage());
+			return "redirect:/owners/" + publicId + "/edit";
 		}
-		ownerService.update(publicId, form);
-		redirectAttributes.addFlashAttribute("mensagem", "Proprietário actualizado com sucesso");
-		return "redirect:/owners";
 	}
 
 	@PostMapping("/{publicId}/delete")
 	public String delete(@PathVariable UUID publicId, RedirectAttributes redirectAttributes) {
-		ownerService.delete(publicId);
-		redirectAttributes.addFlashAttribute("mensagem", "Proprietário removido com sucesso");
+		try {
+			ownerService.delete(publicId);
+			redirectAttributes.addFlashAttribute("mensagem", "Proprietário removido com sucesso");
+		} catch (org.springframework.dao.DataIntegrityViolationException e) {
+
+			redirectAttributes.addFlashAttribute("erro",
+					"Este proprietário não pode ser eliminado porque tem pedidos associados.");
+		}
 		return "redirect:/owners";
 	}
 

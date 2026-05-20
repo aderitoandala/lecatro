@@ -14,17 +14,20 @@ spring:
     locations: classpath:db/migration
 
   mail:
-    host: sandbox.smtp.mailtrap.io  # servidor SMTP do Mailtrap
-    port: 2525                       # porta do Mailtrap
-    username: ${MAIL_USERNAME}       # credenciais do Mailtrap — variáveis de ambiente
-    password: ${MAIL_PASSWORD}
+    host:  smtp.gmail.com             # servidor SMTP do Gmail
+    port:  465                    # SSL 
+    username: ${MAIL_USERNAME}        #dery.lecatro@gmail.com
+    password: ${MAIL_PASSWORD}        # App Password de 16 caracteres
     properties:
       mail:
         smtp:
-          auth: true
-          starttls:
-            enable: true
-
+          auth: true                  # autenticação obrigatória
+          ssl:
+            enable: true              # encriptação TLS obrigatória
+      socketFactory:
+        port: 465                      # SSL em vez de starttls
+        class: javax.net.ssl.SSLSocketFactory
+     
 logging:
   level:
     '[com.dery.lecatro]': DEBUG

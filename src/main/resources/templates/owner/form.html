@@ -48,7 +48,8 @@
 
 					<div class="mb-4">
 						<label class="form-label">Data de Nascimento</label>
-						<input type="date" class="form-control" th:field="*{birthDate}"
+						<input type="date" class="form-control" th:name="birthDate"
+							th:value="${#temporals.format(form.birthDate, 'yyyy-MM-dd')}"
 							th:classappend="${#fields.hasErrors('birthDate')} ? 'is-invalid'" />
 						<div class="invalid-feedback" th:errors="*{birthDate}"></div>
 					</div>

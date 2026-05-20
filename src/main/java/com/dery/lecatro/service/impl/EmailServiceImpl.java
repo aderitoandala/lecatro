@@ -24,7 +24,7 @@ public class EmailServiceImpl implements EmailService {
 		try {
 			SimpleMailMessage message = new SimpleMailMessage();
 
-			message.setFrom("noreply@lecatro.mz"); // remetente fixo
+			message.setFrom("dery.lecatro@gmail.com"); // remetente fixo
 			message.setTo(toEmail); // destinatário — email do proprietário
 			message.setSubject(buildSubject(status)); // assunto dinâmico por estado
 			message.setText(buildBody(ownerName, requestId, status)); // corpo dinâmico

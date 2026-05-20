@@ -15,6 +15,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.dery.lecatro.dto.request.VehicleRequest;
 import com.dery.lecatro.dto.response.VehicleResponse;
+import com.dery.lecatro.exception.DataIntegrityException;
 import com.dery.lecatro.service.VehicleService;
 import com.dery.lecatro.util.PdfGenerator;
 
@@ -70,15 +71,26 @@ public class VehicleController {
 		if (result.hasErrors())
 			return "vehicle/form";
 
-		vehicleService.update(publicId, form);
-		redirectAttributes.addFlashAttribute("mensagem", "Veículo actualizado com sucesso");
-		return "redirect:/vehicles";
+		try {
+
+			vehicleService.update(publicId, form);
+			redirectAttributes.addFlashAttribute("mensagem", "Veículo actualizado com sucesso");
+			return "redirect:/vehicles";
+		} catch (DataIntegrityException e) {
+			redirectAttributes.addFlashAttribute("erro", e.getMessage());
+			return "redirect:/vehicles/" + publicId + "/edit";
+		}
 	}
 
 	@PostMapping("/{publicId}/delete")
 	public String delete(@PathVariable UUID publicId, RedirectAttributes redirectAttributes) {
-		vehicleService.delete(publicId);
-		redirectAttributes.addFlashAttribute("mensagem", "Veículo removido com sucesso");
+		try {
+			vehicleService.delete(publicId);
+			redirectAttributes.addFlashAttribute("mensagem", "Veículo removido com sucesso");
+		} catch (org.springframework.dao.DataIntegrityViolationException e) {
+			redirectAttributes.addFlashAttribute("erro",
+					"Este veículo não pode ser eliminado porque tem pedidos associados.");
+		}
 		return "redirect:/vehicles";
 	}
 

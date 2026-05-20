@@ -1,6 +1,7 @@
 package com.dery.lecatro.controller;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
@@ -44,7 +45,18 @@ public class DashboardController {
 		model.addAttribute("awaitingRequests", requestService.findAwaitingAction());
 
 		model.addAttribute("recentPlates", licensePlateService.findRecent(5));
+		
+		model.addAttribute("greeting", buildGreeting());
 
 		return "dashboard";
+	}
+
+	private String buildGreeting() {
+		int hour = LocalDateTime.now().getHour();
+		if (hour >= 0 && hour < 12)
+			return "Bom dia";
+		if (hour >= 12 && hour < 18)
+			return "Boa tarde";
+		return "Boa noite";
 	}
 }

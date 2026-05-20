@@ -1,59 +1,71 @@
 package com.dery.lecatro.util;
 
-import java.security.SecureRandom;
-
-import org.springframework.stereotype.Component;
-
+import com.dery.lecatro.entity.PlateSequence;
 import com.dery.lecatro.entity.enums.Province;
-import com.dery.lecatro.repository.LicensePlateRepository;
-
+import com.dery.lecatro.repository.PlateSequenceRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
 public class LicensePlateGenerator {
 
-	private final LicensePlateRepository licensePlateRepository;
+    private final PlateSequenceRepository plateSequenceRepository;
 
-	private static final SecureRandom RANDOM = new SecureRandom();
+    
+    private static final String LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-	private static final String LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    // total de combinações possíveis por província: 26³ × 1000 = 17.576.000
+    private static final long MAX_INDEX = 26L * 26 * 26 * 1000 - 1;
 
-	private static final String DIGITS = "0123456789";
+    @Transactional
+    public String generate(Province province) {
+        String code = province.getCode();
 
-	public String generate(Province province) {
-		String number;
+        // busca ou cria a sequência para esta província com bloqueio pessimista
+        PlateSequence sequence = plateSequenceRepository
+                .findByProvinceForUpdate(code)
+                .orElseGet(() -> {
+                    PlateSequence newSeq = new PlateSequence(code, -1L);
+                    return plateSequenceRepository.save(newSeq);
+                });
 
-		// gera até encontrar um número único no sistema
-		do {
-			number = buildNumber(province);
-		} while (licensePlateRepository.existsByNumber(number));
+        // verifica se a sequência esgotou
+        if (sequence.getLastIndex() >= MAX_INDEX) {
+            throw new IllegalStateException(
+                "Sequência de matrículas esgotada para a província: " + code
+            );
+        }
 
-		return number;
-	}
+        // incrementa o índice
+        long nextIndex = sequence.getLastIndex() + 1;
+        sequence.setLastIndex(nextIndex);
+        plateSequenceRepository.save(sequence);
 
-	private String buildNumber(Province province) {
-		// pega três letras aleatórias
-		String letters = randomChars(LETTERS, 3);
+        // converte o índice para o formato ABC 123
+        return buildPlateNumber(nextIndex, code);
+    }
 
-		// pega três dígitos aleatórios
-		String digits = randomChars(DIGITS, 3);
+    private String buildPlateNumber(long index, String provinceCode) {
+        // separa a parte das letras (0..17575) da parte dos dígitos (0..999)
+        long digitPart  = index % 1000;          // ex: 7 → "007"
+        long letterPart = index / 1000;          // ex: 0 → "AAA"
 
-		// pega o código da provincia(Ex:MC)
-		String provinceCode = province.getCode();
+        // converte letterPart para três letras
+        int l3 = (int) (letterPart % 26);        // letra mais à direita
+        int l2 = (int) ((letterPart / 26) % 26); // letra do meio
+        int l1 = (int) (letterPart / 676);       // letra mais à esquerda
 
-		// formata a matricula (Ex:ABC 123 MC)
-		return letters + " " + digits + " " + provinceCode;
-	}
+        String letters = "" +
+            LETTERS.charAt(l1) +
+            LETTERS.charAt(l2) +
+            LETTERS.charAt(l3);
 
-	private String randomChars(String source, int count) {
-		StringBuilder sb = new StringBuilder();
+        // formata os dígitos com zeros à esquerda
+        String digits = String.format("%03d", digitPart);
 
-		for (int i = 0; i < count; i++) {
-			// SecureRandom garante distribuição imprevisível
-			sb.append(source.charAt(RANDOM.nextInt(source.length())));
-		}
-
-		return sb.toString();
-	}
+        // formato final: AAA 000 MC
+        return letters + " " + digits + " " + provinceCode;
+    }
 }

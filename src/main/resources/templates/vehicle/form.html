@@ -9,7 +9,7 @@
 			<a th:href="@{/vehicles}" class="btn btn-sm btn-outline-secondary">
 				<i class="bi bi-arrow-left"></i>
 			</a>
-			<h5 class="mb-0" th:text="${vehicle != null} ? 'Editar Veículo' : 'Novo Veículo'"></h5>
+			<h5 class="mb-0" th:text="${editMode} ? 'Editar Veículo' : 'Novo Veículo'"></h5>
 		</div>
 
 		<div class="card border-0 shadow-sm" style="max-width: 600px">

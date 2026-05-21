@@ -9,7 +9,7 @@
 			<a th:href="@{/owners}" class="btn btn-sm btn-outline-secondary">
 				<i class="bi bi-arrow-left"></i>
 			</a>
-			<h5 class="mb-0" th:text="${owner != null} ? 'Editar Proprietário' : 'Novo Proprietário'"></h5>
+			<h5 class="mb-0" th:text="${editMode} ? 'Editar Proprietário' : 'Novo Proprietário'"></h5>
 		</div>
 
 		<div class="card border-0 shadow-sm" style="max-width: 600px">

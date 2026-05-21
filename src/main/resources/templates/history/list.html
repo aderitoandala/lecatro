@@ -27,7 +27,7 @@
 					</thead>
 					<tbody>
 						<tr th:each="h : ${history}">
-							<td th:text="${h.event}"></td>
+							<td th:text="${h.event.label}"></td>
 							<td th:text="${h.description}"></td>
 							<td th:text="${#temporals.format(h.occurredAt, 'dd/MM/yyyy HH:mm')}"></td>
 						</tr>

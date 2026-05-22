@@ -45,7 +45,7 @@ public class OwnerController {
 	}
 
 	@PostMapping
-	public String create(@Valid @ModelAttribute OwnerRequest form, BindingResult result,
+	public String create(@Valid @ModelAttribute("form") OwnerRequest form, BindingResult result,
 			RedirectAttributes redirectAttributes) {
 		if (result.hasErrors())
 			return "owner/form";
@@ -89,7 +89,7 @@ public class OwnerController {
 		} catch (org.springframework.dao.DataIntegrityViolationException e) {
 
 			redirectAttributes.addFlashAttribute("erro",
-					"Este proprietário não pode ser eliminado porque tem pedidos associados.");
+					"Este proprietário não pode ser removido porque tem pedidos associados.");
 		}
 		return "redirect:/owners";
 	}

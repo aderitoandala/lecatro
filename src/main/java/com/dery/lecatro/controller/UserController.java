@@ -42,7 +42,7 @@ public class UserController {
 	}
 
 	@PostMapping
-	public String create(@Valid @ModelAttribute UserRequest form, BindingResult result,
+	public String create(@Valid @ModelAttribute("form") UserRequest form, BindingResult result,
 			RedirectAttributes redirectAttributes) {
 		if (result.hasErrors())
 			return "user/form";
@@ -74,8 +74,13 @@ public class UserController {
 
 	@PostMapping("/{publicId}/delete")
 	public String delete(@PathVariable UUID publicId, RedirectAttributes redirectAttributes) {
-		userService.delete(publicId);
-		redirectAttributes.addFlashAttribute("mensagem", "Utilizador removido com sucesso");
+		try {
+			userService.delete(publicId);
+			redirectAttributes.addFlashAttribute("mensagem", "Utilizador removido com sucesso");
+		} catch (org.springframework.dao.DataIntegrityViolationException e) {
+			redirectAttributes.addFlashAttribute("erro",
+					"Este utilizador não pode ser removido porque tem pedidos associados.");
+		}
 		return "redirect:/users";
 	}
 }

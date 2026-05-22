@@ -89,7 +89,8 @@ public class LicensePlateServiceImpl implements LicensePlateService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<LicensePlateResponse> findByStatus(LicensePlateStatus status) {
-		return licensePlateRepository.findByStatus(status).stream().map(licensePlateMapper::toResponse).toList();
+		return licensePlateRepository.findByStatusOrderByIdDesc(status).stream().map(licensePlateMapper::toResponse)
+				.toList();
 	}
 
 	@Override

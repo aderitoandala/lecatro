@@ -70,7 +70,7 @@ class RequestServiceImplTest {
 	private EmailService emailService;
 
 	@InjectMocks
-	private RequestServiceImpl requestService;
+	private RequestService requestService;
 
 	private Request request;
 	private RequestRequest requestRequest;

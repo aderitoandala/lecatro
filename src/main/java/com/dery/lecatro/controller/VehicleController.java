@@ -44,7 +44,7 @@ public class VehicleController {
 	}
 
 	@PostMapping
-	public String create(@Valid @ModelAttribute VehicleRequest form, BindingResult result,
+	public String create(@Valid @ModelAttribute("form") VehicleRequest form, BindingResult result,
 			RedirectAttributes redirectAttributes) {
 		if (result.hasErrors())
 			return "vehicle/form";
@@ -89,7 +89,7 @@ public class VehicleController {
 			redirectAttributes.addFlashAttribute("mensagem", "Veículo removido com sucesso");
 		} catch (org.springframework.dao.DataIntegrityViolationException e) {
 			redirectAttributes.addFlashAttribute("erro",
-					"Este veículo não pode ser eliminado porque tem pedidos associados.");
+					"Este veículo não pode ser removido porque tem pedidos associados.");
 		}
 		return "redirect:/vehicles";
 	}

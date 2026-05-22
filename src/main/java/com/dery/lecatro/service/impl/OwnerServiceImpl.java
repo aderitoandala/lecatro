@@ -3,6 +3,7 @@ package com.dery.lecatro.service.impl;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,7 +40,7 @@ public class OwnerServiceImpl implements OwnerService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<OwnerResponse> findAll() {
-		return ownerRepository.findAll().stream().map(ownerMapper::toResponse).toList();
+		return ownerRepository.findAll(Sort.by(Sort.Direction.DESC,"id")).stream().map(ownerMapper::toResponse).toList();
 	}
 
 	@Override

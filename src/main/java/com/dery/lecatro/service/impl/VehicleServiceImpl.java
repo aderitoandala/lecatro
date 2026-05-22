@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,7 +48,8 @@ public class VehicleServiceImpl implements VehicleService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<VehicleResponse> findAll() {
-		return vehicleRepository.findAll().stream().map(vehicleMapper::toResponse).toList();
+		return vehicleRepository.findAll(Sort.by(Sort.Direction.DESC, "id")).stream().map(vehicleMapper::toResponse)
+				.toList();
 	}
 
 	@Override

@@ -172,11 +172,7 @@
 
 			<div class="nav-section">Gestão</div>
 
-			<li class="nav-item">
-				<a class="nav-link" th:href="@{/requests}" th:classappend="${activePage == 'requests'} ? 'active'">
-					<i class="bi bi-file-earmark-text"></i> Pedidos
-				</a>
-			</li>
+
 
 			<li class="nav-item">
 				<a class="nav-link" th:href="@{/owners}" th:classappend="${activePage == 'owners'} ? 'active'">
@@ -187,6 +183,12 @@
 			<li class="nav-item">
 				<a class="nav-link" th:href="@{/vehicles}" th:classappend="${activePage == 'vehicles'} ? 'active'">
 					<i class="bi bi-car-front"></i> Veículos
+				</a>
+			</li>
+
+			<li class="nav-item">
+				<a class="nav-link" th:href="@{/requests}" th:classappend="${activePage == 'requests'} ? 'active'">
+					<i class="bi bi-file-earmark-text"></i> Pedidos
 				</a>
 			</li>
 
@@ -206,8 +208,9 @@
 
 			<div class="nav-section">Conta</div>
 			<li class="nav-item">
-				<form th:action="@{/logout}" method="post">
-					<button type="submit" class="nav-link border-0 bg-transparent w-100 text-start">
+				<form th:action="@{/logout}" method="post" id="logoutForm">
+					<button type="button" class="nav-link border-0 bg-transparent w-100 text-start"
+						onclick="confirmLogout()">
 						<i class="bi bi-box-arrow-left"></i> Sair
 					</button>
 				</form>
@@ -249,6 +252,13 @@
 			const overlay = document.getElementById('sidebarOverlay');
 			sidebar.classList.toggle('open');
 			overlay.classList.toggle('active');
+		}
+
+		//confirmacaco antes do logout
+		function confirmLogout() {
+			if (confirm('Tem a certeza que pretende terminar a sessão?')) {
+				document.getElementById('logoutForm').submit();
+			}
 		}
 	</script>
 

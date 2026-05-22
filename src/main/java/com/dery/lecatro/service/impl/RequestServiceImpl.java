@@ -6,6 +6,7 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,10 +19,12 @@ import com.dery.lecatro.entity.Request;
 import com.dery.lecatro.entity.User;
 import com.dery.lecatro.entity.Vehicle;
 import com.dery.lecatro.entity.enums.HistoryEvent;
+import com.dery.lecatro.entity.enums.LicensePlateStatus;
 import com.dery.lecatro.entity.enums.RequestStatus;
 import com.dery.lecatro.exception.BusinessException;
 import com.dery.lecatro.exception.ResourceNotFoundException;
 import com.dery.lecatro.mapper.RequestMapper;
+import com.dery.lecatro.repository.LicensePlateRepository;
 import com.dery.lecatro.repository.OwnerRepository;
 import com.dery.lecatro.repository.RequestRepository;
 import com.dery.lecatro.repository.UserRepository;
@@ -40,9 +43,16 @@ public class RequestServiceImpl implements RequestService {
 	private final OwnerRepository ownerRepository;
 	private final VehicleRepository vehicleRepository;
 	private final UserRepository userRepository;
+	private final LicensePlateRepository licensePlateRepository;
 	private final RequestMapper requestMapper;
 	private final HistoryService historyService;
 	private final EmailService emailService;
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<RequestResponse> findAll() {
+		return requestRepository.findAll().stream().map(requestMapper::toResponse).toList();
+	}
 
 	@Override
 	@Transactional
@@ -54,30 +64,38 @@ public class RequestServiceImpl implements RequestService {
 		Vehicle vehicle = vehicleRepository.findByPublicId(request.vehiclePublicId())
 				.orElseThrow(() -> new ResourceNotFoundException("Veículo não encontrado"));
 
-		// obtem o utilizador autenticado que esta a processar o pedido
+		// verifica se o veículo já tem matrícula activa
+		if (licensePlateRepository.existsByRequestVehicleIdAndStatus(vehicle.getId(), LicensePlateStatus.ACTIVE)) {
+			throw new BusinessException("O veículo " + vehicle.getBrand() + " " + vehicle.getModel() + " (chassis: "
+					+ vehicle.getChassisNumber() + ")" + " já possui uma matrícula activa. "
+					+ "Cancele a matrícula existente antes de criar um novo pedido.");
+		}
+
+		// verifica se já existe pedido PENDING ou PAID para este veículo
+		boolean hasPendingRequest = requestRepository.findByVehicleId(vehicle.getId()).stream()
+				.anyMatch(r -> r.getStatus() == RequestStatus.PENDING || r.getStatus() == RequestStatus.PAID);
+
+		if (hasPendingRequest) {
+			throw new BusinessException("O veículo " + vehicle.getBrand() + " " + vehicle.getModel()
+					+ " já possui um processo em andamento. "
+					+ "Conclua ou cancele o pedido existente antes de criar um novo.");
+		}
+
+		// obtém o utilizador autenticado que está a processar o pedido
 		String email = SecurityContextHolder.getContext().getAuthentication().getName();
 		User user = userRepository.findByEmail(email)
 				.orElseThrow(() -> new ResourceNotFoundException("Utilizador autenticado não encontrado"));
 
-		// cria um novo pedido com status PENDING
 		Request newRequest = Request.builder().owner(owner).vehicle(vehicle).user(user).build();
 
 		Request saved = requestRepository.save(newRequest);
 
-		// regista o evento de criaçao no histórico
 		historyService.record(saved.getPublicId(), HistoryEvent.REGISTRATION, "Pedido criado");
 
-		// notifica o proprietário que o pedido foi recebido
 		emailService.sendRequestStatusNotification(saved.getOwner().getEmail(), saved.getOwner().getFirstName(),
 				saved.getPublicId().toString(), RequestStatus.PENDING);
 
 		return requestMapper.toResponse(saved);
-	}
-
-	@Override
-	@Transactional(readOnly = true)
-	public List<RequestResponse> findAll() {
-		return requestRepository.findAll().stream().map(requestMapper::toResponse).toList();
 	}
 
 	@Override
@@ -91,7 +109,7 @@ public class RequestServiceImpl implements RequestService {
 		} else if (year != null) {
 			requests = requestRepository.findByYear(year);
 		} else {
-			requests = requestRepository.findAll();
+			requests = requestRepository.findAll(Sort.by(Sort.Direction.DESC, "id"));
 		}
 
 		// filtra por estado se fornecido

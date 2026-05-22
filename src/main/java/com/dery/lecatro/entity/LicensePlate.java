@@ -1,6 +1,7 @@
 package com.dery.lecatro.entity;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import com.dery.lecatro.entity.enums.LicensePlateStatus;
@@ -41,11 +42,11 @@ public class LicensePlate {
 	private UUID publicId;
 
 	@OneToOne(optional = false)
-	@JoinColumn(name = "request_id") 
+	@JoinColumn(name = "request_id")
 	private Request request;
 
 	@Column(name = "plate_number", nullable = false, unique = true)
-	private String number; 
+	private String number;
 
 	@Column(nullable = false)
 	private LocalDate issueDate;
@@ -57,5 +58,6 @@ public class LicensePlate {
 	@PrePersist
 	private void prePersist() {
 		this.publicId = UUID.randomUUID();
+
 	}
 }

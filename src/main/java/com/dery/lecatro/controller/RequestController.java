@@ -22,6 +22,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.dery.lecatro.dto.request.RequestRequest;
 import com.dery.lecatro.dto.response.RequestResponse;
 import com.dery.lecatro.entity.enums.RequestStatus;
+import com.dery.lecatro.exception.BusinessException;
 import com.dery.lecatro.exception.ResourceNotFoundException;
 import com.dery.lecatro.service.LicensePlateService;
 import com.dery.lecatro.service.OwnerService;
@@ -73,18 +74,30 @@ public class RequestController {
 	}
 
 	@PostMapping
-	public String create(@Valid @ModelAttribute RequestRequest requestRequest, BindingResult result, Model model,
+	public String create(@Valid @ModelAttribute RequestRequest form, BindingResult result, Model model,
 			RedirectAttributes redirectAttributes) {
-		if (result.hasErrors()) {
 
+		// 1. Se houver erros de preenchimento (ex: campos vazios)
+		if (result.hasErrors()) {
 			model.addAttribute("owners", ownerService.findAll());
 			model.addAttribute("vehicles", vehicleService.findAll());
 			return "request/form";
 		}
 
-		requestService.create(requestRequest);
-		redirectAttributes.addFlashAttribute("mensagem", "Pedido criado com sucesso");
-		return "redirect:/requests";
+		try {
+			requestService.create(form);
+			redirectAttributes.addFlashAttribute("mensagem", "Pedido criado com sucesso");
+			return "redirect:/requests";
+
+		} catch (BusinessException e) {
+			// 2. Se falhar na regra de negócio do Service, recarregamos as listas E a
+			// mensagem de erro
+			model.addAttribute("erro", e.getMessage());
+			model.addAttribute("owners", ownerService.findAll());
+			model.addAttribute("vehicles", vehicleService.findAll());
+
+			return "request/form";
+		}
 	}
 
 	@GetMapping("/{publicId}")

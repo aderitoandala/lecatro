@@ -29,6 +29,7 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
 	List<Request> findByYearAndMonth(@Param("year") int year, @Param("month") int month);
 
 	List<Request> findByStatusIn(List<RequestStatus> statuses);
-	
+
 	List<Request> findByCreatedAtBetween(LocalDateTime startOfDay, LocalDateTime endOfDay);
+
 }

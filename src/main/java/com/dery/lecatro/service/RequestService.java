@@ -12,8 +12,6 @@ public interface RequestService {
 
 	RequestResponse create(RequestRequest request);
 
-	List<RequestResponse> findAll();
-
 	RequestResponse findByPublicId(UUID publicId);
 
 	List<RequestResponse> findByStatus(RequestStatus status);
@@ -25,10 +23,12 @@ public interface RequestService {
 	List<RequestResponse> findWithFilters(Integer year, Integer month, RequestStatus status);
 
 	RequestStatsResponse getStatsByYear(int year);
-	
 
 	List<RequestResponse> findToday();
+	
+	List<RequestResponse> findAll();
 
-	//PENDING ou PAID
 	List<RequestResponse> findAwaitingAction();
+	
+	
 }

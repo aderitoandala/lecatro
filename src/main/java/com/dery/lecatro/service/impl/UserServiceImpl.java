@@ -3,6 +3,7 @@ package com.dery.lecatro.service.impl;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,7 +41,7 @@ public class UserServiceImpl implements UserService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<UserResponse> findAll() {
-		return userRepository.findAll().stream().map(userMapper::toResponse).toList();
+		return userRepository.findAll(Sort.by(Sort.Direction.DESC, "id")).stream().map(userMapper::toResponse).toList();
 	}
 
 	@Override
@@ -53,19 +54,18 @@ public class UserServiceImpl implements UserService {
 	@Override
 	@Transactional
 	public UserResponse update(UUID publicId, UserUpdateRequest request) {
-	    User user = userRepository.findByPublicId(publicId)
-	            .orElseThrow(() -> new ResourceNotFoundException("Utilizador não encontrado"));
+		User user = userRepository.findByPublicId(publicId)
+				.orElseThrow(() -> new ResourceNotFoundException("Utilizador não encontrado"));
 
-	    user.setEmail(request.email());
-	    user.setProvince(request.province());
-	    user.setRole(request.role());
+		user.setEmail(request.email());
+		user.setProvince(request.province());
+		user.setRole(request.role());
 
-	  
-	    if (request.password() != null && !request.password().isBlank()) {
-	        user.setPassword(passwordEncoder.encode(request.password()));
-	    }
+		if (request.password() != null && !request.password().isBlank()) {
+			user.setPassword(passwordEncoder.encode(request.password()));
+		}
 
-	    return userMapper.toResponse(userRepository.save(user));
+		return userMapper.toResponse(userRepository.save(user));
 	}
 
 	@Override

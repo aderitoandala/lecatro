@@ -30,7 +30,7 @@ public class OwnerServiceImpl implements OwnerService {
 	public OwnerResponse create(OwnerRequest request) {
 
 		if (ownerRepository.existsByNuit(request.nuit())) {
-			throw new DataIntegrityException("Já existe um proprietário com este NUIT");
+			throw new DataIntegrityException("Já existe um proprietário com o NUIT:" + " " + request.nuit());
 		}
 
 		Owner owner = ownerMapper.toEntity(request);
@@ -40,7 +40,8 @@ public class OwnerServiceImpl implements OwnerService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<OwnerResponse> findAll() {
-		return ownerRepository.findAll(Sort.by(Sort.Direction.DESC,"id")).stream().map(ownerMapper::toResponse).toList();
+		return ownerRepository.findAll(Sort.by(Sort.Direction.DESC, "id")).stream().map(ownerMapper::toResponse)
+				.toList();
 	}
 
 	@Override

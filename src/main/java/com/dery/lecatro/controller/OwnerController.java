@@ -45,13 +45,26 @@ public class OwnerController {
 	}
 
 	@PostMapping
-	public String create(@Valid @ModelAttribute("form") OwnerRequest form, BindingResult result,
+	public String create(@Valid @ModelAttribute("form") OwnerRequest form, BindingResult result, Model model,
 			RedirectAttributes redirectAttributes) {
-		if (result.hasErrors())
+
+		if (result.hasErrors()) {
+
 			return "owner/form";
-		ownerService.create(form);
-		redirectAttributes.addFlashAttribute("mensagem", "Proprietário criado com sucesso");
-		return "redirect:/owners";
+		}
+
+		try {
+
+			ownerService.create(form);
+			redirectAttributes.addFlashAttribute("mensagem", "Proprietário criado com sucesso");
+			return "redirect:/owners";
+
+		} catch (DataIntegrityException e) {
+
+			model.addAttribute("erro", e.getMessage());
+
+			return "owner/form";
+		}
 	}
 
 	@GetMapping("/{publicId}/edit")

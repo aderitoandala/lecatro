@@ -14,6 +14,10 @@
 
 		<div class="card border-0 shadow-sm" style="max-width: 600px">
 			<div class="card-body p-4">
+				<div th:if="${erro}" class="alert alert-danger d-flex align-items-center mb-3 small" role="alert">
+					<i class="bi bi-exclamation-triangle-fill me-2"></i>
+					<span th:text="${erro}"></span>
+				</div>
 
 				<form th:action="${editMode} ? @{/owners/{id}/edit(id=${publicId})} : @{/owners}" method="post"
 					th:object="${form}">

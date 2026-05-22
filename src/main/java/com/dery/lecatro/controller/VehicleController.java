@@ -15,6 +15,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.dery.lecatro.dto.request.VehicleRequest;
 import com.dery.lecatro.dto.response.VehicleResponse;
+import com.dery.lecatro.exception.BusinessException;
 import com.dery.lecatro.exception.DataIntegrityException;
 import com.dery.lecatro.service.VehicleService;
 import com.dery.lecatro.util.PdfGenerator;
@@ -44,14 +45,27 @@ public class VehicleController {
 	}
 
 	@PostMapping
-	public String create(@Valid @ModelAttribute("form") VehicleRequest form, BindingResult result,
+	public String create(@Valid @ModelAttribute("form") VehicleRequest form, BindingResult result, Model model,
 			RedirectAttributes redirectAttributes) {
-		if (result.hasErrors())
-			return "vehicle/form";
 
-		vehicleService.create(form);
-		redirectAttributes.addFlashAttribute("mensagem", "Veículo criado com sucesso");
-		return "redirect:/vehicles";
+		if (result.hasErrors()) {
+			model.addAttribute("editMode", false);
+			return "vehicle/form";
+		}
+
+		try {
+			vehicleService.create(form);
+			redirectAttributes.addFlashAttribute("mensagem", "Veículo criado com sucesso");
+			return "redirect:/vehicles";
+
+			// ano de fabrico futuro OU chassis duplicado
+		} catch (BusinessException | DataIntegrityException e) {
+
+			model.addAttribute("erro", e.getMessage());
+			model.addAttribute("editMode", false);
+
+			return "vehicle/form";
+		}
 	}
 
 	@GetMapping("/{publicId}/edit")

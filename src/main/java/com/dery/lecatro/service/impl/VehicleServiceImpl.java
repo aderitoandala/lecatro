@@ -38,7 +38,8 @@ public class VehicleServiceImpl implements VehicleService {
 		}
 
 		if (vehicleRepository.existsByChassisNumber(request.chassisNumber())) {
-			throw new DataIntegrityException("Já existe um veículo com este número de chassis");
+			throw new DataIntegrityException(
+					"Já existe um veículo com o número de chassis:" + " " + request.chassisNumber());
 		}
 
 		Vehicle vehicle = vehicleMapper.toEntity(request);

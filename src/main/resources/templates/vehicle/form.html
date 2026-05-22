@@ -46,14 +46,18 @@
 						<label class="form-label">Número de Chassis</label>
 						<input type="text" class="form-control" th:field="*{chassisNumber}"
 							th:classappend="${#fields.hasErrors('chassisNumber')} ? 'is-invalid'" />
-						<div class="invalid-feedback" th:errors="*{chassisNumber}"></div>
+						<div class="invalid-feedback" th:if="${#fields.hasErrors('chassisNumber')}"
+							th:text="${#fields.errors('chassisNumber')[0]}">
+						</div>
 					</div>
 
 					<div class="mb-4">
 						<label class="form-label">Ano de Fabrico</label>
 						<input type="number" class="form-control" th:field="*{manufactureYear}"
 							th:classappend="${#fields.hasErrors('manufactureYear')} ? 'is-invalid'" />
-						<div class="invalid-feedback" th:errors="*{manufactureYear}"></div>
+						<div class="invalid-feedback" th:if="${#fields.hasErrors('manufactureYear')}"
+							th:text="${#fields.errors('manufactureYear')[0]}">
+						</div>
 					</div>
 
 					<button type="submit" class="btn btn-dark">

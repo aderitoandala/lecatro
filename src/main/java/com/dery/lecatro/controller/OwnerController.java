@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.dery.lecatro.dto.request.OwnerRequest;
@@ -33,8 +34,11 @@ public class OwnerController {
 	private final PdfGenerator pdfGenerator;
 
 	@GetMapping
-	public String list(Model model) {
-		model.addAttribute("owners", ownerService.findAll());
+	public String list(@RequestParam(required = false) String search, Model model) {
+		List<OwnerResponse> owners = (search != null && !search.isBlank()) ? ownerService.findBySearch(search)
+				: ownerService.findAll();
+		model.addAttribute("owners", owners);
+		model.addAttribute("search", search);
 		return "owner/list";
 	}
 
@@ -119,4 +123,5 @@ public class OwnerController {
 
 		pdfGenerator.generateOwners(rows, response.getOutputStream());
 	}
+
 }

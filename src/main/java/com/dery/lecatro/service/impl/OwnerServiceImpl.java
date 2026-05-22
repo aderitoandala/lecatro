@@ -74,4 +74,10 @@ public class OwnerServiceImpl implements OwnerService {
 
 		ownerRepository.delete(owner);
 	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<OwnerResponse> findBySearch(String search) {
+		return ownerRepository.findBySearch(search.toLowerCase().trim()).stream().map(ownerMapper::toResponse).toList();
+	}
 }

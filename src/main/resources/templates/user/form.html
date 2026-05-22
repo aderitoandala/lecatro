@@ -22,7 +22,8 @@
 						<label class="form-label">Email</label>
 						<input type="email" class="form-control" th:field="*{email}"
 							th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'" />
-						<div class="invalid-feedback" th:errors="*{email}"></div>
+						<div class="invalid-feedback" th:if="${#fields.hasErrors('email')}"
+							th:text="${#fields.errors('email')[0]}"></div>
 					</div>
 
 					<div class="mb-3">

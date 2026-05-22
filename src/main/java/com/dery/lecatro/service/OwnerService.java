@@ -17,4 +17,6 @@ public interface OwnerService {
 	OwnerResponse update(UUID publicId, OwnerRequest request);
 
 	void delete(UUID publicId);
+
+	List<OwnerResponse> findBySearch(String search);
 }

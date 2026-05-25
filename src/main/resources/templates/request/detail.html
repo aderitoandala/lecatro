@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-	th:replace="~{fragments/layout :: layout('Detalhe do Pedido', 'requests', ~{::conteudo})}">
+	th:replace="~{fragments/layout :: layout('Detalhes do Pedido', 'requests', ~{::conteudo})}">
 
 <body>
 	<th:block th:fragment="conteudo">
@@ -11,7 +11,7 @@
 			<a th:href="@{/requests}" class="btn btn-sm btn-outline-secondary">
 				<i class="bi bi-arrow-left"></i>
 			</a>
-			<h5 class="mb-0">Detalhe do Pedido</h5>
+			<h5 class="mb-0">Detalhes do Pedido</h5>
 		</div>
 
 		<div class="row g-4">

@@ -18,10 +18,8 @@
 					<i class="bi bi-plus-lg me-1"></i> Novo Pedido
 				</a>
 			</div>
-
 		</div>
 
-		<!-- cartões de estatísticas do ano seleccionado -->
 		<div class="row g-3 mb-4">
 			<div class="col-6 col-md-3">
 				<div class="card border-0 shadow-sm">
@@ -57,12 +55,10 @@
 			</div>
 		</div>
 
-		<!-- painel de filtros -->
 		<div class="card border-0 shadow-sm mb-4">
 			<div class="card-body">
 				<form th:action="@{/requests}" method="get" class="row g-2 align-items-end">
 
-					<!-- ano -->
 					<div class="col-12 col-md-3">
 						<label class="form-label small text-muted">Ano</label>
 						<select name="year" class="form-select form-select-sm">
@@ -73,7 +69,6 @@
 						</select>
 					</div>
 
-					<!-- mês -->
 					<div class="col-12 col-md-3">
 						<label class="form-label small text-muted">Mês</label>
 						<select name="month" class="form-select form-select-sm">
@@ -93,7 +88,6 @@
 						</select>
 					</div>
 
-					<!-- estado -->
 					<div class="col-12 col-md-3">
 						<label class="form-label small text-muted">Estado</label>
 						<select name="status" class="form-select form-select-sm">
@@ -107,7 +101,6 @@
 						</select>
 					</div>
 
-					<!-- botões -->
 					<div class="col-12 col-md-3 d-flex gap-2">
 						<button type="submit" class="btn btn-sm btn-dark w-100">
 							<i class="bi bi-funnel me-1"></i> Filtrar
@@ -121,25 +114,24 @@
 			</div>
 		</div>
 
-		<!-- tabela de resultados -->
-		<div class="card border-0 shadow-sm">
+		<div class="card border-0 shadow-sm overflow-hidden">
 			<div class="table-responsive">
-				<table class="table table-hover mb-0">
+				<table class="table table-hover align-middle mb-0">
 					<thead class="table-dark">
 						<tr>
 							<th>Proprietário</th>
 							<th>Veículo</th>
-							<th>Operador</th>
+							<th class="d-none d-md-table-cell">Operador</th>
 							<th>Estado</th>
-							<th>Data</th>
-							<th>Acções</th>
+							<th class="d-none d-md-table-cell">Data</th>
+							<th class="text-end">Acções</th>
 						</tr>
 					</thead>
 					<tbody>
 						<tr th:each="request : ${requests}">
 							<td th:text="${request.owner.firstName + ' ' + request.owner.lastName}"></td>
 							<td th:text="${request.vehicle.brand + ' ' + request.vehicle.model}"></td>
-							<td th:text="${request.user.email}"></td>
+							<td class="d-none d-md-table-cell text-nowrap" th:text="${request.user.email}"></td>
 							<td>
 								<span class="badge" th:classappend="${request.status.name() == 'PENDING'}   ? 'bg-warning text-dark' :
                                                   (${request.status.name() == 'PAID'}     ? 'bg-info text-dark'    :
@@ -148,13 +140,26 @@
 									th:text="${request.status.label}">
 								</span>
 							</td>
-							<td th:text="${#temporals.format(request.createdAt, 'dd/MM/yyyy')}"></td>
-							<td>
+							<td class="d-none d-md-table-cell"
+								th:text="${#temporals.format(request.createdAt, 'dd/MM/yyyy')}"></td>
+							<td class="text-end text-nowrap">
+
+								<button type="button" class="btn btn-sm btn-outline-secondary d-md-none me-1"
+									data-bs-toggle="modal" data-bs-target="#requestModal" th:attr="data-bs-proprietario=${request.owner.firstName + ' ' + request.owner.lastName},
+											 data-bs-veiculo=${request.vehicle.brand + ' ' + request.vehicle.model},
+											 data-bs-operador=${request.user.email},
+											 data-bs-data=${#temporals.format(request.createdAt, 'dd/MM/yyyy')},
+											 data-bs-estado=${request.status.label},
+											 data-bs-url=@{/requests/{id}(id=${request.publicId})}">
+									<i class="bi bi-eye"></i>
+								</button>
+
 								<a th:href="@{/requests/{id}(id=${request.publicId})}"
-									class="btn btn-sm btn-outline-secondary" title="Detalhes"
-									data-bs-toggle="tooltip">
+									class="btn btn-sm btn-outline-secondary d-none d-md-inline-block me-1"
+									title="Detalhes" data-bs-toggle="tooltip">
 									<i class="bi bi-eye"></i>
 								</a>
+
 								<form
 									th:if="${request.status.name() != 'ISSUED' and request.status.name() != 'CANCELLED'}"
 									th:action="@{/requests/{id}/cancel(id=${request.publicId})}" method="post"
@@ -176,12 +181,70 @@
 				</table>
 			</div>
 
-			<!-- rodapé com total de resultados -->
-			<div th:if="${!#lists.isEmpty(requests)}" class="card-footer text-muted small text-end">
+			<div th:if="${!#lists.isEmpty(requests)}" class="card-footer bg-light text-muted small text-end py-2">
 				<span th:text="${#lists.size(requests)} + ' resultado(s) encontrado(s)'"></span>
 			</div>
-
 		</div>
+
+		<div class="modal fade" id="requestModal" tabindex="-1" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered modal-sm">
+				<div class="modal-content border-0 shadow">
+					<div class="modal-header bg-dark text-white py-2">
+						<h6 class="modal-title">Resumo do Pedido</h6>
+						<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+							aria-label="Close"></button>
+					</div>
+					<div class="modal-body p-3">
+						<div class="mb-2">
+							<small class="text-muted d-block">Proprietário</small>
+							<span id="modalReqProprietario" class="fw-bold text-dark"></span>
+						</div>
+						<div class="mb-2">
+							<small class="text-muted d-block">Veículo</small>
+							<span id="modalReqVeiculo" class="fw-semibold"></span>
+						</div>
+						<div class="mb-2">
+							<small class="text-muted d-block">Operador</small>
+							<span id="modalReqOperador" class="text-break"></span>
+						</div>
+						<div class="mb-2">
+							<small class="text-muted d-block">Data de Entrada</small>
+							<span id="modalReqData"></span>
+						</div>
+						<div class="mb-3">
+							<small class="text-muted d-block">Estado Actual</small>
+							<span id="modalReqEstado" class="fw-bold text-primary"></span>
+						</div>
+
+						<a href="#" id="modalReqLink" class="btn btn-sm btn-dark w-100">
+							<i class="bi bi-gear me-1"></i> Gerir
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			document.addEventListener('DOMContentLoaded', function () {
+				const requestModal = document.getElementById('requestModal');
+				if (requestModal) {
+					requestModal.addEventListener('show.bs.modal', function (event) {
+						const button = event.relatedTarget;
+
+						// Injetar os valores textuais
+						document.getElementById('modalReqProprietario').textContent = button.getAttribute('data-bs-proprietario');
+						document.getElementById('modalReqVeiculo').textContent = button.getAttribute('data-bs-veiculo');
+						document.getElementById('modalReqOperador').textContent = button.getAttribute('data-bs-operador');
+						document.getElementById('modalReqData').textContent = button.getAttribute('data-bs-data');
+						document.getElementById('modalReqEstado').textContent = button.getAttribute('data-bs-estado');
+
+						// Atualizar a rota dinâmica do botão interno do modal
+						const url = button.getAttribute('data-bs-url');
+						document.getElementById('modalReqLink').setAttribute('href', url);
+					});
+				}
+			});
+		</script>
 
 	</th:block>
 </body>

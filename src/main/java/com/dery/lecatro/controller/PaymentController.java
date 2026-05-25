@@ -38,20 +38,27 @@ public class PaymentController {
 
 	@PostMapping
 	public String create(@Valid @ModelAttribute PaymentRequest paymentRequest, BindingResult result,
-			RedirectAttributes redirectAttributes) {
-		if (result.hasErrors())
+			RedirectAttributes redirectAttributes, Model model) {
+
+		if (result.hasErrors()) {
+
+			var requestData = requestService.findByPublicId(paymentRequest.requestPublicId());
+
+			model.addAttribute("request", requestData);
+
 			return "payment/form";
+		}
 
 		paymentService.create(paymentRequest);
 		redirectAttributes.addFlashAttribute("mensagem", "Pagamento registado com sucesso");
-		return "redirect:/requests";
+		return "redirect:/requests/" + paymentRequest.requestPublicId();
 	}
 
 	@PostMapping("/{publicId}/confirm")
 	public String confirm(@PathVariable UUID publicId, RedirectAttributes redirectAttributes) {
 		PaymentResponse payment = paymentService.confirm(publicId);
-		redirectAttributes.addFlashAttribute("mensagem", "Pagamento confirmado com sucesso");
-		// redireciona para o detalhe do pedido
+		redirectAttributes.addFlashAttribute("mensagem", "Pagamento confirmado");
+
 		return "redirect:/requests/" + payment.requestPublicId();
 	}
 

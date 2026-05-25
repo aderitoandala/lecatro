@@ -17,4 +17,6 @@ public interface VehicleService {
 	VehicleResponse update(UUID publicId, VehicleRequest request);
 
 	void delete(UUID publicId);
+
+	List<VehicleResponse> findBySearch(String search);
 }

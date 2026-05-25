@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.dery.lecatro.dto.request.VehicleRequest;
@@ -33,8 +34,11 @@ public class VehicleController {
 	private final PdfGenerator pdfGenerator;
 
 	@GetMapping
-	public String list(Model model) {
-		model.addAttribute("vehicles", vehicleService.findAll());
+	public String list(@RequestParam(required = false) String search, Model model) {
+		List<VehicleResponse> vehicles = (search != null && !search.isBlank()) ? vehicleService.findBySearch(search)
+				: vehicleService.findAll();
+		model.addAttribute("vehicles", vehicles);
+		model.addAttribute("search", search);
 		return "vehicle/list";
 	}
 

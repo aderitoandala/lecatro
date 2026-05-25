@@ -6,6 +6,8 @@ import java.util.UUID;
 import com.dery.lecatro.dto.request.UserRequest;
 import com.dery.lecatro.dto.request.UserUpdateRequest;
 import com.dery.lecatro.dto.response.UserResponse;
+import com.dery.lecatro.entity.enums.Province;
+import com.dery.lecatro.entity.enums.Role;
 
 public interface UserService {
 
@@ -18,4 +20,8 @@ public interface UserService {
 	UserResponse update(UUID publicId, UserUpdateRequest request);
 
 	void delete(UUID publicId);
+
+	List<UserResponse> findBySearch(String search);
+	
+	List<UserResponse> findWithFilters(String search, Role role, Province province);
 }

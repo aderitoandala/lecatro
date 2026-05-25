@@ -90,4 +90,11 @@ public class VehicleServiceImpl implements VehicleService {
 
 		vehicleRepository.delete(vehicle);
 	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<VehicleResponse> findBySearch(String search) {
+		return vehicleRepository.findBySearch(search.toLowerCase().trim()).stream().map(vehicleMapper::toResponse)
+				.toList();
+	}
 }

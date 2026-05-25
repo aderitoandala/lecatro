@@ -45,7 +45,7 @@
 				<table class="table table-hover mb-0">
 					<thead class="table-dark">
 						<tr>
-							<th>Nome</th>
+							<th>Nome Completo</th>
 							<th>NUIT</th>
 							<th>Email</th>
 							<th>Data de Nascimento</th>
@@ -61,14 +61,15 @@
 							<td>
 								<!-- editar -->
 								<a th:href="@{/owners/{id}/edit(id=${owner.publicId})}"
-									class="btn btn-sm btn-outline-secondary me-1">
+									class="btn btn-sm btn-outline-secondary me-1" title="Editar"
+									data-bs-toggle="tooltip">
 									<i class="bi bi-pencil"></i>
 								</a>
-								<!-- eliminar -->
+								<!-- Remover -->
 								<form th:action="@{/owners/{id}/delete(id=${owner.publicId})}" method="post"
 									class="d-inline">
-									<button type="submit" class="btn btn-sm btn-outline-danger"
-										onclick="return confirm('Confirma a eliminação?')">
+									<button type="submit" class="btn btn-sm btn-outline-danger" title="Remover"
+										data-bs-toggle="tooltip" onclick="return confirm('Confirma a eliminação?')">
 										<i class="bi bi-trash"></i>
 									</button>
 								</form>

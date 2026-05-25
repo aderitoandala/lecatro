@@ -12,6 +12,8 @@ import com.dery.lecatro.dto.request.UserRequest;
 import com.dery.lecatro.dto.request.UserUpdateRequest;
 import com.dery.lecatro.dto.response.UserResponse;
 import com.dery.lecatro.entity.User;
+import com.dery.lecatro.entity.enums.Province;
+import com.dery.lecatro.entity.enums.Role;
 import com.dery.lecatro.exception.ResourceNotFoundException;
 import com.dery.lecatro.mapper.UserMapper;
 import com.dery.lecatro.repository.UserRepository;
@@ -75,5 +77,21 @@ public class UserServiceImpl implements UserService {
 				.orElseThrow(() -> new ResourceNotFoundException("Utilizador não encontrado"));
 
 		userRepository.delete(user);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<UserResponse> findBySearch(String search) {
+		return userRepository.findBySearch(search.trim().toLowerCase()).stream().map(userMapper::toResponse).toList();
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<UserResponse> findWithFilters(String search, Role role, Province province) {
+		return userRepository.findAll().stream()
+				.filter(u -> search == null || search.isBlank()
+						|| u.getEmail().toLowerCase().contains(search.toLowerCase()))
+				.filter(u -> role == null || u.getRole() == role)
+				.filter(u -> province == null || u.getProvince() == province).map(userMapper::toResponse).toList();
 	}
 }

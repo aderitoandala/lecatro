@@ -260,6 +260,12 @@
 				document.getElementById('logoutForm').submit();
 			}
 		}
+		
+		// activa todos os tooltips da página
+		document.addEventListener('DOMContentLoaded', function() {
+		    const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+		    tooltips.forEach(el => new bootstrap.Tooltip(el));
+		});
 	</script>
 
 </body>

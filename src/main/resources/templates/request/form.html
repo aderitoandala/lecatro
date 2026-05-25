@@ -14,48 +14,81 @@
 
 		<div class="card border-0 shadow-sm" style="max-width: 600px">
 			<div class="card-body p-4">
-				<div class="card-body p-4">
 
-					<div th:if="${erro}" class="alert alert-danger d-flex align-items-center mb-3 small" role="alert">
-						<i class="bi bi-exclamation-triangle-fill me-2"></i>
-						<span th:text="${erro}"></span>
+				<div th:if="${erro}" class="alert alert-danger d-flex align-items-center mb-3 small" role="alert">
+					<i class="bi bi-exclamation-triangle-fill me-2"></i>
+					<span th:text="${erro}"></span>
+				</div>
+
+				<form th:action="@{/requests}" method="post" th:object="${requestRequest}">
+
+					<div class="mb-3">
+						<label class="form-label">Proprietário</label>
+						<input type="text" class="form-control" id="ownerSearch"
+							placeholder="Pesquisar por nome ou NUIT..." list="ownerList"
+							th:classappend="${#fields.hasErrors('ownerPublicId')} ? 'is-invalid'" />
+
+						<datalist id="ownerList">
+							<option th:each="owner : ${owners}"
+								th:value="${owner.firstName + ' ' + owner.lastName + ' - ' + owner.nuit}"
+								th:attr="data-id=${owner.publicId}">
+							</option>
+						</datalist>
+
+						<input type="hidden" th:field="*{ownerPublicId}" id="ownerPublicId" />
+						<div class="invalid-feedback" th:errors="*{ownerPublicId}"></div>
 					</div>
 
-					<form th:action="@{/requests}" method="post" th:object="${requestRequest}">
+					<div class="mb-4">
+						<label class="form-label">Veículo</label>
+						<input type="text" class="form-control" id="vehicleSearch"
+							placeholder="Pesquisar por marca, modelo ou chassis..." list="vehicleList"
+							th:classappend="${#fields.hasErrors('vehiclePublicId')} ? 'is-invalid'" />
 
+						<datalist id="vehicleList">
+							<option th:each="vehicle : ${vehicles}"
+								th:value="${vehicle.brand + ' ' + vehicle.model + ' - ' + vehicle.chassisNumber}"
+								th:attr="data-id=${vehicle.publicId}">
+							</option>
+						</datalist>
 
+						<input type="hidden" th:field="*{vehiclePublicId}" id="vehiclePublicId" />
+						<div class="invalid-feedback" th:errors="*{vehiclePublicId}"></div>
+					</div>
 
-						<div class="mb-3">
-							<label class="form-label">Proprietário</label>
-							<!-- select populado com a lista de owners vinda do controller -->
-							<select class="form-select" th:field="*{ownerPublicId}"
-								th:classappend="${#fields.hasErrors('ownerPublicId')} ? 'is-invalid'">
-								<option value="">-- Seleccione um proprietário --</option>
-								<option th:each="owner : ${owners}" th:value="${owner.publicId}"
-									th:text="${owner.firstName + ' ' + owner.lastName + ' (' + owner.nuit + ')'}">
-								</option>
-							</select>
-							<div class="invalid-feedback" th:errors="*{ownerPublicId}"></div>
-						</div>
+					<button type="submit" class="btn btn-dark">Criar Pedido</button>
 
-						<div class="mb-4">
-							<label class="form-label">Veículo</label>
-							<!-- select populado com a lista de vehicles vinda do controller -->
-							<select class="form-select" th:field="*{vehiclePublicId}"
-								th:classappend="${#fields.hasErrors('vehiclePublicId')} ? 'is-invalid'">
-								<option value="">-- Seleccione um veículo --</option>
-								<option th:each="vehicle : ${vehicles}" th:value="${vehicle.publicId}"
-									th:text="${vehicle.brand + ' ' + vehicle.model + ' (' + vehicle.chassisNumber + ')'}">
-								</option>
-							</select>
-							<div class="invalid-feedback" th:errors="*{vehiclePublicId}"></div>
-						</div>
-
-						<button type="submit" class="btn btn-dark">Criar Pedido</button>
-
-					</form>
-				</div>
+				</form>
 			</div>
+		</div>
+
+		<script>
+			// Sincronização do Proprietário
+			document.getElementById('ownerSearch').addEventListener('change', function () {
+				const options = document.querySelectorAll('#ownerList option');
+				let found = false;
+				options.forEach(opt => {
+					if (opt.value === this.value) {
+						document.getElementById('ownerPublicId').value = opt.getAttribute('data-id');
+						found = true;
+					}
+				});
+				if (!found) document.getElementById('ownerPublicId').value = ''; // Reseta se apagar o texto
+			});
+
+			// Sincronização do Veículo
+			document.getElementById('vehicleSearch').addEventListener('change', function () {
+				const options = document.querySelectorAll('#vehicleList option');
+				let found = false;
+				options.forEach(opt => {
+					if (opt.value === this.value) {
+						document.getElementById('vehiclePublicId').value = opt.getAttribute('data-id');
+						found = true;
+					}
+				});
+				if (!found) document.getElementById('vehiclePublicId').value = ''; // Reseta se apagar o texto
+			});
+		</script>
 
 	</th:block>
 </body>

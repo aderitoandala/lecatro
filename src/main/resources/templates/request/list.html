@@ -151,14 +151,16 @@
 							<td th:text="${#temporals.format(request.createdAt, 'dd/MM/yyyy')}"></td>
 							<td>
 								<a th:href="@{/requests/{id}(id=${request.publicId})}"
-									class="btn btn-sm btn-outline-secondary me-1">
+									class="btn btn-sm btn-outline-secondary" title="Detalhes"
+									data-bs-toggle="tooltip">
 									<i class="bi bi-eye"></i>
 								</a>
 								<form
 									th:if="${request.status.name() != 'ISSUED' and request.status.name() != 'CANCELLED'}"
 									th:action="@{/requests/{id}/cancel(id=${request.publicId})}" method="post"
 									class="d-inline">
-									<button type="submit" class="btn btn-sm btn-outline-danger"
+									<button type="submit" class="btn btn-sm btn-outline-danger" title="Cancelar"
+										data-bs-toggle="tooltip"
 										onclick="return confirm('Confirma o cancelamento do pedido?')">
 										<i class="bi bi-x-lg"></i>
 									</button>

@@ -14,6 +14,56 @@
 			</a>
 		</div>
 
+		<div class="card border-0 shadow-sm mb-4">
+			<div class="card-body">
+				<form th:action="@{/users}" method="get" class="row g-3">
+
+					<div class="col-12">
+						<label class="form-label small text-muted">Pesquisar por Email</label>
+						<div class="input-group input-group-sm">
+							<input type="text" name="search" class="form-control"
+								placeholder="Digite o email do utilizador..." th:value="${search}" />
+							<span class="input-group-text bg-light text-muted">
+								<i class="bi bi-envelope"></i>
+							</span>
+						</div>
+					</div>
+
+
+
+					<div class="col-12 col-md-4">
+						<label class="form-label small text-muted">Província</label>
+						<select name="province" class="form-select form-select-sm">
+							<option value="">Todas as províncias</option>
+							<option th:each="p : ${provinces}" th:value="${p}" th:text="${p.label}"
+								th:selected="${p == selectedProvince}">
+							</option>
+						</select>
+					</div>
+
+					<div class="col-12 col-md-4">
+						<label class="form-label small text-muted">Função</label>
+						<select name="role" class="form-select form-select-sm">
+							<option value="">Todas as funções</option>
+							<option th:each="r : ${roles}" th:value="${r}" th:text="${r.label}"
+								th:selected="${r == selectedRole}">
+							</option>
+						</select>
+					</div>
+
+					<div class="col-12 col-md-4 d-flex gap-2 align-items-end">
+						<button type="submit" class="btn btn-sm btn-dark w-100">
+							<i class="bi bi-funnel me-1"></i> Filtrar
+						</button>
+						<a th:href="@{/users}" class="btn btn-sm btn-outline-secondary w-100">
+							<i class="bi bi-x-lg me-1"></i> Limpar
+						</a>
+					</div>
+
+				</form>
+			</div>
+		</div>
+
 		<div class="card border-0 shadow-sm">
 			<div class="table-responsive">
 				<table class="table table-hover mb-0">

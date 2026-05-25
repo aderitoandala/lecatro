@@ -95,15 +95,17 @@
 								</span>
 							</td>
 							<td>
-								<a th:href="@{/license-plates/{id}/certificate(id=${plate.publicId})}" class="btn btn-sm btn-outline-secondary me-1"
-									title="Imprimir Certificado">
+								<a th:href="@{/license-plates/{id}/certificate(id=${plate.publicId})}"
+									class="btn btn-sm btn-outline-secondary me-1" title="Imprimir Certificado">
 									<i class="bi bi-award"></i>
 								</a>
-							
-								<form th:if="${plate.status.name() == 'ACTIVE'}" th:action="@{/license-plates/{id}/cancel(id=${plate.publicId})}"
-									method="post" class="d-inline">
-									<button type="submit" class="btn btn-sm btn-outline-danger"
-										onclick="return confirm('Confirma o cancelamento?')">
+
+								<form th:if="${plate.status.name() == 'ACTIVE'}"
+									th:action="@{/license-plates/{id}/cancel(id=${plate.publicId})}" method="post"
+									class="d-inline">
+									<button type="submit" class="btn btn-sm btn-outline-danger" title="Cancelar"
+										data-bs-toggle="tooltip"
+										onclick="return confirm('Confirma o cancelamento da matrícula?')">
 										<i class="bi bi-x-lg"></i>
 									</button>
 								</form>

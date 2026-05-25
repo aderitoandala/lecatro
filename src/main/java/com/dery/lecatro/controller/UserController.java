@@ -11,11 +11,14 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.dery.lecatro.dto.request.UserRequest;
 import com.dery.lecatro.dto.request.UserUpdateRequest;
 import com.dery.lecatro.dto.response.UserResponse;
+import com.dery.lecatro.entity.enums.Province;
+import com.dery.lecatro.entity.enums.Role;
 import com.dery.lecatro.service.UserService;
 
 import jakarta.validation.Valid;
@@ -30,8 +33,14 @@ public class UserController {
 	private final UserService userService;
 
 	@GetMapping
-	public String list(Model model) {
-		model.addAttribute("users", userService.findAll());
+	public String list(@RequestParam(required = false) String search, @RequestParam(required = false) Role role,
+			@RequestParam(required = false) Province province, Model model) {
+		model.addAttribute("users", userService.findWithFilters(search, role, province));
+		model.addAttribute("search", search);
+		model.addAttribute("selectedRole", role);
+		model.addAttribute("selectedProvince", province);
+		model.addAttribute("roles", Role.values());
+		model.addAttribute("provinces", Province.values());
 		return "user/list";
 	}
 

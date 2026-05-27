@@ -1,9 +1,9 @@
 package com.dery.lecatro.service.impl;
 
-import java.util.List;
 import java.util.UUID;
 
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,9 +39,8 @@ public class OwnerServiceImpl implements OwnerService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<OwnerResponse> findAll() {
-		return ownerRepository.findAll(Sort.by(Sort.Direction.DESC, "id")).stream().map(ownerMapper::toResponse)
-				.toList();
+	public Page<OwnerResponse> findAll(Pageable pageable) {
+		return ownerRepository.findAll(pageable).map(ownerMapper::toResponse);
 	}
 
 	@Override
@@ -77,7 +76,7 @@ public class OwnerServiceImpl implements OwnerService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<OwnerResponse> findBySearch(String search) {
-		return ownerRepository.findBySearch(search.toLowerCase().trim()).stream().map(ownerMapper::toResponse).toList();
+	public Page<OwnerResponse> findBySearch(String search, Pageable pageable) {
+		return ownerRepository.findBySearch(search.toLowerCase().trim(), pageable).map(ownerMapper::toResponse);
 	}
 }

@@ -91,6 +91,14 @@
 			</div>
 		</div>
 
+		<div class="card-footer text-muted small text-end">
+			<span th:text="${totalItems} + ' proprietário(s) encontrado(s)'"></span>
+		</div>
+
+		<div th:replace="~{fragments/pagination :: pagination(
+		    '/owners', ${queryString}, ${currentPage}, ${totalPages}, ${pageSize}
+		)}"></div>
+
 		<div class="modal fade" id="ownerModal" tabindex="-1" aria-hidden="true">
 			<div class="modal-dialog modal-dialog-centered modal-sm">
 				<div class="modal-content border-0 shadow">

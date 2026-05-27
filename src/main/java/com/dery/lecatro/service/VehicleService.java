@@ -1,16 +1,16 @@
 package com.dery.lecatro.service;
 
+import java.util.UUID;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import com.dery.lecatro.dto.request.VehicleRequest;
 import com.dery.lecatro.dto.response.VehicleResponse;
-
-import java.util.List;
-import java.util.UUID;
 
 public interface VehicleService {
 
 	VehicleResponse create(VehicleRequest request);
-
-	List<VehicleResponse> findAll();
 
 	VehicleResponse findByPublicId(UUID publicId);
 
@@ -18,5 +18,7 @@ public interface VehicleService {
 
 	void delete(UUID publicId);
 
-	List<VehicleResponse> findBySearch(String search);
+	Page<VehicleResponse> findAll(Pageable pageable);
+
+	Page<VehicleResponse> findBySearch(String search, Pageable pageable);
 }

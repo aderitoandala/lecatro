@@ -3,6 +3,10 @@ package com.dery.lecatro.controller;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -34,12 +38,29 @@ public class VehicleController {
 	private final PdfGenerator pdfGenerator;
 
 	@GetMapping
-	public String list(@RequestParam(required = false) String search, Model model) {
-		List<VehicleResponse> vehicles = (search != null && !search.isBlank()) ? vehicleService.findBySearch(search)
-				: vehicleService.findAll();
-		model.addAttribute("vehicles", vehicles);
+	public String list(@RequestParam(required = false) String search, @RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size, Model model) {
+		Pageable pageable = PageRequest.of(page, size, Sort.by("brand").ascending());
+
+		Page<VehicleResponse> pageResult = (search != null && !search.isBlank())
+				? vehicleService.findBySearch(search, pageable)
+				: vehicleService.findAll(pageable);
+
+		model.addAttribute("vehicles", pageResult.getContent());
+		model.addAttribute("currentPage", pageResult.getNumber());
+		model.addAttribute("totalPages", pageResult.getTotalPages());
+		model.addAttribute("totalItems", pageResult.getTotalElements());
+		model.addAttribute("pageSize", size);
 		model.addAttribute("search", search);
+		model.addAttribute("queryString", buildQueryString(search, size));
 		return "vehicle/list";
+	}
+
+	private String buildQueryString(String search, int size) {
+		StringBuilder sb = new StringBuilder("?size=" + size);
+		if (search != null && !search.isBlank())
+			sb.append("&search=").append(search);
+		return sb.toString();
 	}
 
 	@GetMapping("/new")
@@ -117,8 +138,8 @@ public class VehicleController {
 		response.setContentType("application/pdf");
 		response.setHeader("Content-Disposition", "attachment; filename=veiculos.pdf");
 
-		List<String[]> rows = vehicleService.findAll().stream().map(v -> new String[] { v.brand(), v.model(), v.color(),
-				v.chassisNumber(), String.valueOf(v.manufactureYear()) }).toList();
+		List<String[]> rows = vehicleService.findAll(Pageable.unpaged()).getContent().stream().map(v -> new String[] {
+				v.brand(), v.model(), v.color(), v.chassisNumber(), String.valueOf(v.manufactureYear()) }).toList();
 
 		pdfGenerator.generateVehicles(rows, response.getOutputStream());
 	}

@@ -4,7 +4,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,9 +49,8 @@ public class VehicleServiceImpl implements VehicleService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<VehicleResponse> findAll() {
-		return vehicleRepository.findAll(Sort.by(Sort.Direction.DESC, "id")).stream().map(vehicleMapper::toResponse)
-				.toList();
+	public Page<VehicleResponse> findAll(Pageable pageable) {
+		return vehicleRepository.findAll(pageable).map(vehicleMapper::toResponse);
 	}
 
 	@Override
@@ -93,8 +93,7 @@ public class VehicleServiceImpl implements VehicleService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<VehicleResponse> findBySearch(String search) {
-		return vehicleRepository.findBySearch(search.toLowerCase().trim()).stream().map(vehicleMapper::toResponse)
-				.toList();
+	public Page<VehicleResponse> findBySearch(String search, Pageable pageable) {
+		return vehicleRepository.findBySearch(search.toLowerCase().trim(), pageable).map(vehicleMapper::toResponse);
 	}
 }

@@ -97,8 +97,8 @@ public class RequestController {
 	@GetMapping("/new")
 	public String createForm(Model model) {
 		model.addAttribute("requestRequest", new RequestRequest(null, null));
-		model.addAttribute("owners", ownerService.findAll());
-		model.addAttribute("vehicles", vehicleService.findAll());
+		model.addAttribute("owners", ownerService.findAll(Pageable.unpaged()).getContent());
+		model.addAttribute("vehicles", vehicleService.findAll(Pageable.unpaged()).getContent());
 		return "request/form";
 	}
 
@@ -106,10 +106,9 @@ public class RequestController {
 	public String create(@Valid @ModelAttribute RequestRequest form, BindingResult result, Model model,
 			RedirectAttributes redirectAttributes) {
 
-		// 1. Se houver erros de preenchimento (ex: campos vazios)
 		if (result.hasErrors()) {
-			model.addAttribute("owners", ownerService.findAll());
-			model.addAttribute("vehicles", vehicleService.findAll());
+			model.addAttribute("owners", ownerService.findAll(Pageable.unpaged()).getContent());
+			model.addAttribute("vehicles", vehicleService.findAll(Pageable.unpaged()).getContent());
 			return "request/form";
 		}
 
@@ -121,8 +120,8 @@ public class RequestController {
 		} catch (BusinessException e) {
 
 			model.addAttribute("erro", e.getMessage());
-			model.addAttribute("owners", ownerService.findAll());
-			model.addAttribute("vehicles", vehicleService.findAll());
+			model.addAttribute("owners", ownerService.findAll(Pageable.unpaged()).getContent());
+			model.addAttribute("vehicles", vehicleService.findAll(Pageable.unpaged()).getContent());
 
 			return "request/form";
 		}

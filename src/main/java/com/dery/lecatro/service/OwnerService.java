@@ -1,16 +1,16 @@
 package com.dery.lecatro.service;
 
+import java.util.UUID;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import com.dery.lecatro.dto.request.OwnerRequest;
 import com.dery.lecatro.dto.response.OwnerResponse;
-
-import java.util.List;
-import java.util.UUID;
 
 public interface OwnerService {
 
 	OwnerResponse create(OwnerRequest request);
-
-	List<OwnerResponse> findAll();
 
 	OwnerResponse findByPublicId(UUID publicId);
 
@@ -18,5 +18,7 @@ public interface OwnerService {
 
 	void delete(UUID publicId);
 
-	List<OwnerResponse> findBySearch(String search);
+	Page<OwnerResponse> findAll(Pageable pageable);
+
+	Page<OwnerResponse> findBySearch(String search, Pageable pageable);
 }

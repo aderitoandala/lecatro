@@ -18,6 +18,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import com.dery.lecatro.dto.request.VehicleRequest;
 import com.dery.lecatro.dto.response.VehicleResponse;
@@ -76,11 +79,14 @@ class VehicleServiceImplTest {
 	@Test
 	void shouldListAllVehicles() {
 		// Arrange
-		when(vehicleRepository.findAll()).thenReturn(List.of(vehicle));
+		Page<Vehicle> vehiclePage = new PageImpl<>(List.of(vehicle));
+
+		// 2. Mockamos o repositório para aceitar qualquer parâmetro Pageable
+		when(vehicleRepository.findAll(any(Pageable.class))).thenReturn(vehiclePage);
 		when(vehicleMapper.toResponse(vehicle)).thenReturn(vehicleResponse);
 
 		// Act
-		List<VehicleResponse> result = vehicleService.findAll();
+		List<VehicleResponse> result = vehicleService.findAll(Pageable.unpaged()).getContent();
 
 		// Assert
 		assertThat(result).hasSize(1);

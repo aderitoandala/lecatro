@@ -41,7 +41,7 @@ public class DashboardController {
 
 		model.addAttribute("totalPlates", licensePlateService.findByStatus(LicensePlateStatus.ACTIVE).size());
 
-		model.addAttribute("totalOwners", ownerService.findAll().size());
+		model.addAttribute("totalOwners", ownerService.findAll(Pageable.unpaged()).getTotalElements());
 
 		model.addAttribute("awaitingRequests", requestService.findAwaitingAction(Pageable.unpaged()).getContent());
 

@@ -1,5 +1,28 @@
 package com.dery.lecatro.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+
 import com.dery.lecatro.dto.request.OwnerRequest;
 import com.dery.lecatro.dto.response.OwnerResponse;
 import com.dery.lecatro.entity.Owner;
@@ -8,22 +31,6 @@ import com.dery.lecatro.exception.ResourceNotFoundException;
 import com.dery.lecatro.mapper.OwnerMapper;
 import com.dery.lecatro.repository.OwnerRepository;
 import com.dery.lecatro.service.impl.OwnerServiceImpl;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class OwnerServiceImplTest {
@@ -84,16 +91,20 @@ class OwnerServiceImplTest {
 
 	@Test
 	void shouldListAllOwners() {
-		// Arrange
-		when(ownerRepository.findAll()).thenReturn(List.of(owner));
-		when(ownerMapper.toResponse(owner)).thenReturn(ownerResponse);
+	    // Arrange
+	   
+	    Page<Owner> ownerPage = new PageImpl<>(List.of(owner));
+	    
+		when(ownerRepository.findAll(any(Pageable.class))).thenReturn(ownerPage);
+	    
+	    when(ownerMapper.toResponse(owner)).thenReturn(ownerResponse);
 
-		// Act
-		List<OwnerResponse> result = ownerService.findAll();
+	    // Act
+	    List<OwnerResponse> result = ownerService.findAll(Pageable.unpaged()).getContent();
 
-		// Assert
-		assertThat(result).hasSize(1);
-		assertThat(result.get(0).nuit()).isEqualTo("123456789");
+	    // Assert
+	    assertThat(result).hasSize(1);
+	    assertThat(result.get(0).nuit()).isEqualTo("123456789");
 	}
 
 	@Test

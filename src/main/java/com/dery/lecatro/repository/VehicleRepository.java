@@ -1,9 +1,10 @@
 package com.dery.lecatro.repository;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,7 +19,9 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
 
 	boolean existsByChassisNumber(String chassisNumber);
 
-	@Query("SELECT v FROM Vehicle v WHERE " + "LOWER(v.brand)         LIKE %:search% OR "
-			+ "LOWER(v.model)         LIKE %:search% OR " + "LOWER(v.chassisNumber)        LIKE %:search%")
-	List<Vehicle> findBySearch(@Param("search") String search);
+	Page<Vehicle> findAll(Pageable pageable);
+
+	@Query("SELECT v FROM Vehicle v WHERE " + "LOWER(v.brand)      LIKE %:search% OR "
+			+ "LOWER(v.model)      LIKE %:search% OR " + "v.chassisNumber     LIKE %:search%")
+	Page<Vehicle> findBySearch(@Param("search") String search, Pageable pageable);
 }

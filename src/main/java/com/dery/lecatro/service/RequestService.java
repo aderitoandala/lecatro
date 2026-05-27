@@ -3,6 +3,9 @@ package com.dery.lecatro.service;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import com.dery.lecatro.dto.request.RequestRequest;
 import com.dery.lecatro.dto.response.RequestResponse;
 import com.dery.lecatro.dto.response.RequestStatsResponse;
@@ -14,21 +17,19 @@ public interface RequestService {
 
 	RequestResponse findByPublicId(UUID publicId);
 
-	List<RequestResponse> findByStatus(RequestStatus status);
-
-	List<RequestResponse> findByOwner(UUID ownerPublicId);
-
 	RequestResponse cancel(UUID publicId);
-
-	List<RequestResponse> findWithFilters(Integer year, Integer month, RequestStatus status);
 
 	RequestStatsResponse getStatsByYear(int year);
 
-	List<RequestResponse> findToday();
-	
-	List<RequestResponse> findAll();
+	Page<RequestResponse> findByStatus(RequestStatus status, Pageable pageable);
 
-	List<RequestResponse> findAwaitingAction();
-	
-	
+	Page<RequestResponse> findByOwner(UUID ownerPublicId, Pageable pageable);
+
+	Page<RequestResponse> findWithFilters(Integer year, Integer month, RequestStatus status, Pageable pageable);
+
+	Page<RequestResponse> findToday(Pageable pageable);
+
+	Page<RequestResponse> findAll(Pageable pageable);
+
+	Page<RequestResponse> findAwaitingAction(Pageable pageable);
 }

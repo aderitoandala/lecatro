@@ -8,6 +8,10 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.IntStream;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -49,20 +53,45 @@ public class RequestController {
 
 	@GetMapping
 	public String list(@RequestParam(required = false) Integer year, @RequestParam(required = false) Integer month,
-			@RequestParam(required = false) RequestStatus status, Model model) {
-		model.addAttribute("requests", requestService.findWithFilters(year, month, status));
+			@RequestParam(required = false) RequestStatus status, @RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size, Model model) {
+		Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending()); // mais recentes primeiro
 
-		int selectedYear = year != null ? year : LocalDate.now().getYear();
-		model.addAttribute("stats", requestService.getStatsByYear(selectedYear));
-		model.addAttribute("selectedYear", selectedYear);
+		Page<RequestResponse> pageResult = requestService.findWithFilters(year, month, status, pageable);
+
+		model.addAttribute("requests", pageResult.getContent());
+		model.addAttribute("currentPage", pageResult.getNumber());
+		model.addAttribute("totalPages", pageResult.getTotalPages());
+		model.addAttribute("totalItems", pageResult.getTotalElements());
+		model.addAttribute("pageSize", size);
+
+		model.addAttribute("selectedYear", year);
 		model.addAttribute("selectedMonth", month);
 		model.addAttribute("selectedStatus", status);
 
+		int selectedYear = year != null ? year : LocalDate.now().getYear();
+		model.addAttribute("stats", requestService.getStatsByYear(selectedYear));
+
+		// anos disponiveis
 		List<Integer> years = IntStream.rangeClosed(LocalDate.now().getYear() - 4, LocalDate.now().getYear()).boxed()
 				.sorted(Comparator.reverseOrder()).toList();
 		model.addAttribute("years", years);
 
+		// query string para paginação com filtros activos
+		model.addAttribute("queryString", buildQueryString(year, month, status, size));
+
 		return "request/list";
+	}
+
+	private String buildQueryString(Integer year, Integer month, RequestStatus status, int size) {
+		StringBuilder sb = new StringBuilder("?size=" + size);
+		if (year != null)
+			sb.append("&year=").append(year);
+		if (month != null)
+			sb.append("&month=").append(month);
+		if (status != null)
+			sb.append("&status=").append(status.name());
+		return sb.toString();
 	}
 
 	@GetMapping("/new")
@@ -90,8 +119,7 @@ public class RequestController {
 			return "redirect:/requests";
 
 		} catch (BusinessException e) {
-			// 2. Se falhar na regra de negócio do Service, recarregamos as listas E a
-			// mensagem de erro
+
 			model.addAttribute("erro", e.getMessage());
 			model.addAttribute("owners", ownerService.findAll());
 			model.addAttribute("vehicles", vehicleService.findAll());
@@ -136,7 +164,8 @@ public class RequestController {
 		response.setHeader("Content-Disposition", "attachment; filename=pedidos.pdf");
 
 		// respeita os filtros activos
-		List<String[]> rows = requestService.findWithFilters(year, month, status).stream()
+		List<String[]> rows = requestService.findWithFilters(year, month, status, Pageable.unpaged()).getContent()
+				.stream()
 				.map(r -> new String[] { r.owner().firstName() + " " + r.owner().lastName(),
 						r.vehicle().brand() + " " + r.vehicle().model(), r.user().email(), r.status().getLabel(),
 						r.createdAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) })

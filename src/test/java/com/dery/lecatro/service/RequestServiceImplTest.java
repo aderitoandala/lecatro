@@ -22,6 +22,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -43,7 +47,6 @@ import com.dery.lecatro.repository.OwnerRepository;
 import com.dery.lecatro.repository.RequestRepository;
 import com.dery.lecatro.repository.UserRepository;
 import com.dery.lecatro.repository.VehicleRepository;
-import com.dery.lecatro.service.impl.RequestServiceImpl;
 
 @ExtendWith(MockitoExtension.class)
 class RequestServiceImplTest {
@@ -156,15 +159,21 @@ class RequestServiceImplTest {
 
 	@Test
 	void shouldListAllRequests() {
-		// Arrange
-		when(requestRepository.findAll()).thenReturn(List.of(request));
+
+		Pageable pageable = PageRequest.of(0, 10);
+
+		Page<Request> requestPage = new PageImpl<>(List.of(request), pageable, 1);
+
+		when(requestRepository.findAll(pageable)).thenReturn(requestPage);
 		when(requestMapper.toResponse(request)).thenReturn(requestResponse);
 
-		// Act
-		List<RequestResponse> result = requestService.findAll();
+		Page<RequestResponse> result = requestService.findAll(pageable);
 
 		// Assert
-		assertThat(result).hasSize(1);
+		assertThat(result).isNotNull();
+		assertThat(result.getContent()).hasSize(1);
+		assertThat(result.getTotalElements()).isEqualTo(1);
+		assertThat(result.getContent().get(0)).isEqualTo(requestResponse);
 	}
 
 	@Test

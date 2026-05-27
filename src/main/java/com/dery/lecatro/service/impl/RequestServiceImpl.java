@@ -6,6 +6,9 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -50,8 +53,9 @@ public class RequestServiceImpl implements RequestService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<RequestResponse> findAll() {
-		return requestRepository.findAll().stream().map(requestMapper::toResponse).toList();
+	public Page<RequestResponse> findAll(Pageable pageable) {
+
+		return requestRepository.findAll(pageable).map(requestMapper::toResponse);
 	}
 
 	@Override
@@ -71,9 +75,8 @@ public class RequestServiceImpl implements RequestService {
 					+ "Cancele a matrícula existente antes de criar um novo pedido.");
 		}
 
-		// verifica se já existe pedido PENDING ou PAID para este veículo
-		boolean hasPendingRequest = requestRepository.findByVehicleId(vehicle.getId()).stream()
-				.anyMatch(r -> r.getStatus() == RequestStatus.PENDING || r.getStatus() == RequestStatus.PAID);
+		boolean hasPendingRequest = requestRepository.existsByVehicleIdAndStatusIn(vehicle.getId(),
+				List.of(RequestStatus.PENDING, RequestStatus.PAID));
 
 		if (hasPendingRequest) {
 			throw new BusinessException("O veículo " + vehicle.getBrand() + " " + vehicle.getModel()
@@ -100,29 +103,29 @@ public class RequestServiceImpl implements RequestService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<RequestResponse> findWithFilters(Integer year, Integer month, RequestStatus status) {
-		List<Request> requests;
+	public Page<RequestResponse> findWithFilters(Integer year, Integer month, RequestStatus status, Pageable pageable) {
+		Page<Request> requestsPage;
 
-		// aplica os filtros disponíveis — todos são opcionais
+		Pageable sortedPageable = pageable.getSort().isSorted() ? pageable
+				: PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.DESC, "id"));
+
 		if (year != null && month != null) {
-			requests = requestRepository.findByYearAndMonth(year, month);
+			requestsPage = requestRepository.findByYearAndMonth(year, month, sortedPageable);
 		} else if (year != null) {
-			requests = requestRepository.findByYear(year);
+			requestsPage = requestRepository.findByYear(year, sortedPageable);
 		} else {
-			requests = requestRepository.findAll(Sort.by(Sort.Direction.DESC, "id"));
+			requestsPage = requestRepository.findAll(sortedPageable);
 		}
 
-		// filtra por estado se fornecido
-		return requests.stream().filter(r -> status == null || r.getStatus() == status).map(requestMapper::toResponse)
-				.toList();
+		return requestsPage.map(requestMapper::toResponse);
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public RequestStatsResponse getStatsByYear(int year) {
+
 		List<Request> requests = requestRepository.findByYear(year);
 
-		// agrega as contagens por estado
 		return new RequestStatsResponse(year, null, requests.size(),
 				requests.stream().filter(r -> r.getStatus() == RequestStatus.PENDING).count(),
 				requests.stream().filter(r -> r.getStatus() == RequestStatus.PAID).count(),
@@ -139,17 +142,17 @@ public class RequestServiceImpl implements RequestService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<RequestResponse> findByStatus(RequestStatus status) {
-		return requestRepository.findByStatus(status).stream().map(requestMapper::toResponse).toList();
+	public Page<RequestResponse> findByStatus(RequestStatus status, Pageable pageable) {
+		return requestRepository.findByStatus(status, pageable).map(requestMapper::toResponse);
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<RequestResponse> findByOwner(UUID ownerPublicId) {
+	public Page<RequestResponse> findByOwner(UUID ownerPublicId, Pageable pageable) {
 		Owner owner = ownerRepository.findByPublicId(ownerPublicId)
 				.orElseThrow(() -> new ResourceNotFoundException("Proprietário não encontrado"));
 
-		return requestRepository.findByOwnerId(owner.getId()).stream().map(requestMapper::toResponse).toList();
+		return requestRepository.findByOwnerId(owner.getId(), pageable).map(requestMapper::toResponse);
 	}
 
 	@Override
@@ -165,10 +168,8 @@ public class RequestServiceImpl implements RequestService {
 		request.setStatus(RequestStatus.CANCELLED);
 		Request saved = requestRepository.save(request);
 
-		// regista o evento de cancelamento no histórico
 		historyService.record(saved.getPublicId(), HistoryEvent.CANCELLATION, "Pedido cancelado");
 
-		// notifica o proprietário do cancelamento
 		emailService.sendRequestStatusNotification(saved.getOwner().getEmail(), saved.getOwner().getFirstName(),
 				saved.getPublicId().toString(), RequestStatus.CANCELLED);
 
@@ -177,22 +178,19 @@ public class RequestServiceImpl implements RequestService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<RequestResponse> findToday() {
+	public Page<RequestResponse> findToday(Pageable pageable) {
 		LocalDate today = LocalDate.now();
-		// Define o início do dia (00:00:00) e o fim do dia (23:59:59)
 		LocalDateTime start = today.atStartOfDay();
 		LocalDateTime end = today.atTime(LocalTime.MAX);
 
-		return requestRepository.findByCreatedAtBetween(start, end).stream().map(requestMapper::toResponse).toList();
+		return requestRepository.findByCreatedAtBetween(start, end, pageable).map(requestMapper::toResponse);
 	}
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<RequestResponse> findAwaitingAction() {
-
+	public Page<RequestResponse> findAwaitingAction(Pageable pageable) {
 		List<RequestStatus> activeStatuses = List.of(RequestStatus.PENDING, RequestStatus.PAID);
 
-		return requestRepository.findByStatusIn(activeStatuses).stream().map(requestMapper::toResponse).toList();
+		return requestRepository.findByStatusIn(activeStatuses, pageable).map(requestMapper::toResponse);
 	}
-
 }

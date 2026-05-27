@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -34,18 +35,18 @@ public class DashboardController {
 		model.addAttribute("today",
 				LocalDate.now().format(DateTimeFormatter.ofPattern("dd 'de' MMMM 'de' yyyy", Locale.of("pt", "MZ"))));
 
-		model.addAttribute("totalToday", requestService.findToday().size());
+		model.addAttribute("totalToday", requestService.findToday(Pageable.unpaged()).getTotalElements());
 
-		model.addAttribute("totalAwaiting", requestService.findAwaitingAction().size());
+		model.addAttribute("totalAwaiting", requestService.findAwaitingAction(Pageable.unpaged()).getTotalElements());
 
 		model.addAttribute("totalPlates", licensePlateService.findByStatus(LicensePlateStatus.ACTIVE).size());
 
 		model.addAttribute("totalOwners", ownerService.findAll().size());
 
-		model.addAttribute("awaitingRequests", requestService.findAwaitingAction());
+		model.addAttribute("awaitingRequests", requestService.findAwaitingAction(Pageable.unpaged()).getContent());
 
 		model.addAttribute("recentPlates", licensePlateService.findRecent(5));
-		
+
 		model.addAttribute("greeting", buildGreeting());
 
 		return "dashboard";

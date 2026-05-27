@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="pagination(baseUrl, queryString, currentPage, totalPages, pageSize)">
+
+	<div th:if="${totalPages > 1}" class="d-flex flex-wrap justify-content-between align-items-center mt-3 gap-2">
+
+		<span class="text-muted small">
+			Página <span th:text="${currentPage + 1}"></span>
+			de <span th:text="${totalPages}"></span>
+		</span>
+
+		<nav>
+			<ul class="pagination pagination-sm mb-0">
+
+				<li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+					<a class="page-link" th:href="${baseUrl + queryString + '&page=' + (currentPage - 1)}">
+						<i class="bi bi-chevron-left"></i>
+					</a>
+				</li>
+
+				<th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+					th:if="${i >= currentPage - 2 and i <= currentPage + 2}">
+					<li class="page-item" th:classappend="${i == currentPage} ? 'active'">
+						<a class="page-link" th:text="${i + 1}" th:href="${baseUrl + queryString + '&page=' + i}">
+						</a>
+					</li>
+				</th:block>
+
+				<li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+					<a class="page-link" th:href="${baseUrl + queryString + '&page=' + (currentPage + 1)}">
+						<i class="bi bi-chevron-right"></i>
+					</a>
+				</li>
+
+			</ul>
+		</nav>
+
+		<div class="d-flex align-items-center gap-2">
+			<span class="text-muted small d-none d-md-inline">Por página:</span>
+			<select class="form-select form-select-sm" style="width:70px" onchange="window.location=this.value">
+				<option th:each="s : ${ {5, 10, 25, 50} }"
+					th:value="${baseUrl + queryString.replaceAll('size=\\d+', 'size=' + s) + '&page=0'}" th:text="${s}"
+					th:selected="${s == pageSize}">
+				</option>
+			</select>
+		</div>
+
+	</div>
+
+</div>
+
+</html>

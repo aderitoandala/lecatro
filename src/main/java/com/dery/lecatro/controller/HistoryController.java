@@ -40,7 +40,7 @@ public class HistoryController {
 		response.setHeader("Content-Disposition", "attachment; filename=historico.pdf");
 
 		RequestResponse request = requestService.findByPublicId(requestPublicId);
-		String requestInfo = request.owner().firstName() + " " + request.owner().lastName() + " — "
+		String requestInfo = request.owner().firstName() + " " + request.owner().lastName() + " -- "
 				+ request.vehicle().brand() + " " + request.vehicle().model();
 
 		List<String[]> rows = historyService.findByRequest(requestPublicId).stream()

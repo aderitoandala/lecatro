@@ -32,7 +32,6 @@ public class PaymentServiceImpl implements PaymentService {
 	private final PaymentMapper paymentMapper;
 	private final HistoryService historyService;
 	private final EmailService emailService;
-	
 
 	@Override
 	@Transactional
@@ -66,7 +65,7 @@ public class PaymentServiceImpl implements PaymentService {
 
 		// confirma o pagamento
 		payment.setStatus(PaymentStatus.CONFIRMED);
-		paymentRepository.save(payment);
+		Payment saved = paymentRepository.save(payment);
 
 		// actualiza o estado do pedido para PAID
 		Request request = payment.getRequest();
@@ -74,7 +73,8 @@ public class PaymentServiceImpl implements PaymentService {
 		requestRepository.save(request);
 
 		// regista confirmação no histórico
-		historyService.record(request.getPublicId(), HistoryEvent.PAYMENT, "Pagamento confirmado");
+		historyService.record(request.getPublicId(), HistoryEvent.PAYMENT,
+				"Pagamento confirmado:" + " " + saved.getAmount());
 
 		// notifica o proprietário que o pagamento foi confirmado
 		emailService.sendRequestStatusNotification(request.getOwner().getEmail(), request.getOwner().getFirstName(),

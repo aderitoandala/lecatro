@@ -1,7 +1,6 @@
 package com.dery.lecatro.entity;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 import com.dery.lecatro.entity.enums.LicensePlateStatus;
